@@ -1,0 +1,60 @@
+@startuml
+skinparam sequenceMessageAlign center
+
+== Inicialización ==
+' Mensaje 1 inicial (se retrasa)
+[o-> emisor: Create temp
+activate emisor
+
+emisor -->?: msg [seq=1]
+note left: **msg1 con retraso**
+[x-> emisor: noAck [seq = 1]
+deactivate emisor
+
+' Mensaje 1 reintento (funciona normal)
+[o-> emisor: Restart temp
+activate emisor
+emisor -> receptor++: msg [seq=1] (retry)
+receptor -> receptor: Procesar msg 1
+receptor -> emisor: ack [seq=1]
+deactivate receptor
+[x-> emisor: Destroy temp
+deactivate emisor
+
+' Mensaje 2 (funciona normal y llega el msg 1 inicial)
+[o-> emisor: Create temp
+activate emisor
+emisor -> receptor++: msg [seq=2]
+?--> receptor: msg [seq=1]
+note right: **msg1 retrasado**
+receptor -> emisor: ack [seq=1]
+emisor <- emisor: Destroy Ack [seq=1]
+receptor -> receptor: Procesar msg 2
+receptor -> emisor: ack [seq=2]
+deactivate receptor
+[x-> emisor: Destroy temp
+deactivate emisor
+
+' Mensaje 3 (funciona normal)
+[o-> emisor: Create temp
+activate emisor
+emisor -> receptor++: msg [seq=3] (retry)
+receptor -> receptor: Procesar msg 3
+receptor -> emisor: ack [seq=3]
+deactivate receptor
+[x-> emisor: Destroy temp
+deactivate emisor
+
+' Mensaje 4 (funciona normal)
+[o-> emisor: Create temp
+activate emisor
+emisor -> receptor++: msg [seq=4] (retry)
+receptor -> receptor: Procesar msg 4
+receptor -> emisor: ack [seq=4]
+deactivate receptor
+[x-> emisor: Destroy temp
+deactivate emisor
+
+== Finalización ==
+
+@enduml
