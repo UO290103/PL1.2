@@ -1,40 +1,28 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 
-namespace Cliente
+namespace ClienteUDP
 {
     class Cliente
     {
-        public void Run()
+        static void Main()
         {
-            TcpClient client = null;
-            NetworkStream netStream = null;
+            UdpClient udpClient = new UdpClient();
+            IPEndPoint serverEP = new IPEndPoint(IPAddress.Loopback, 50000);
 
             try
             {
-                client = new TcpClient("localhost", 50000);
-                netStream = client.GetStream();
-                Console.WriteLine("Conectado al servidor.");
+                // Aquí se debe desarrollar el envio del mensaje
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception: {0}", e.Message);
+                Console.WriteLine($"Error: {e.Message}");
             }
             finally
             {
-                if (netStream != null)
-                    netStream.Close();
-
-                if (client != null)
-                    client.Close();
+                udpClient.Close();
             }
-        }
-
-        // Método Main como punto de entrada
-        static void Main()
-        {
-            Cliente cliente = new Cliente();
-            cliente.Run();
         }
     }
 }
