@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PL1._2
+namespace Programa
 {
     internal class Program
     {
