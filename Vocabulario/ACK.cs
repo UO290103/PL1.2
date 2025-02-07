@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Vocabulario
@@ -23,18 +24,28 @@ namespace Vocabulario
         }
 
         //Metodo que obtiene el numero de secuencia de un array de bytes
-        public void Decode(byte[] A)
+        public void Decode(byte[] Codif)
         {
-            _seq = A[0];
+            //Creación de stream de lectura
+            MemoryStream ms = new MemoryStream(Codif);
+            BinaryReader reader = new BinaryReader(ms);
+            //Obtener el numero de secuencia
+            _seq = reader.ReadInt32();
         }
 
         //Metodo que codifica en un array de bytes el numero de secuencia
         public byte[] Code()
         {
-            byte[] A = new byte[1];
-            byte seqByte = (byte)_seq;
-            A[0] = seqByte;
-            return A;
+            //Creación de buffer y streams de escritura
+            byte[] Codif;
+            MemoryStream ms = new MemoryStream();
+            BinaryWriter writer = new BinaryWriter(ms);
+            //Leer el numero de secuencia
+            writer.Write(_seq);
+            writer.Flush();
+            //Obtener el array de bytes
+            Codif = ms.ToArray();
+            return Codif;
         }
     }
 }
