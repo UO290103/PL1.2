@@ -18,7 +18,7 @@ namespace Servidor
             bool conexion = false;
 
             // Inicializamos la variable para el contador.
-            int cont = 0;
+            int seq = 0;
 
             // Creamos una instancia try-catch para manejar excepciones
 
@@ -28,10 +28,10 @@ namespace Servidor
                 while (true)
                 {
 
-                    if (cont == 0)
+                    if (seq == 0)
                     {
                         Console.WriteLine("Esperando conexión con el cliente...");
-                        cont++;
+                        seq++;
                     }
 
                     // Debemos recibir el mensaje por parte del cliente.
@@ -49,10 +49,25 @@ namespace Servidor
                     msg.Decode(bytes);
 
                     // Guardaremos los datos recibidos en un archivo de texto.
-                    using (System.IO.StreamWriter file = new System.IO.StreamWriter("datos.txt", true))
+
+                    // Deberemos de crear un comprobador de correspondencia de la secuencia con el mensaje recibido.
+                    if (msg.seq == seq)
                     {
-                        file.WriteLine("Secuencia: " + msg.seq + " Número: " + msg.num);
+                        Console.WriteLine("Mensaje recibido: " + msg.num);
+                        seq++;
                     }
+
+                    // Esta variable se usa durante la comprobación de funcionamiento! El mensaje se descartaría.
+                    else
+                    {
+                        Console.WriteLine("Mensaje duplicado: " + msg.num);
+                    }
+
+                    // Creamos un mensaje de confirmación para el cliente con la secuencia deferente.
+                    ACK ack = new ACK(seq);
+                    ack.Code();
+
+                    // Ahora enviamos este mensaje ACK al cliente para confirmar la recepción del mensaje.
                 }
             }
 
