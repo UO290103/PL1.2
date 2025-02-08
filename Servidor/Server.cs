@@ -17,7 +17,6 @@ namespace Servidor
             IPEndPoint ip = new IPEndPoint(IPAddress.Any, port);
             bool conexion = false;
 
-            // Inicializamos la variable para el contador.
             int seq = 0;
 
             // Creamos una instancia try-catch para manejar excepciones
@@ -32,6 +31,7 @@ namespace Servidor
                     {
                         Console.WriteLine("Esperando conexión con el cliente...");
                         seq++;
+                        Console.WriteLine(seq); //Mensaje de comprobación
                     }
 
                     // Debemos recibir el mensaje por parte del cliente.
@@ -48,7 +48,7 @@ namespace Servidor
                     Datos msg = new Datos();
                     msg.Decode(bytes);
 
-                    // Guardaremos los datos recibidos en un archivo de texto.
+                    // Guardaremos los datos recibidos en un archivo de texto. -> No implementado.
 
                     // Deberemos de crear un comprobador de correspondencia de la secuencia con el mensaje recibido.
                     if (msg.seq == seq)
@@ -61,13 +61,15 @@ namespace Servidor
                     else
                     {
                         Console.WriteLine("Mensaje duplicado: " + msg.num);
+                        Console.WriteLine("Secuencia esperada: " + seq);
+                        Console.WriteLine("Secuencia recibida: " + msg.seq);
                     }
 
                     // Creamos un mensaje de confirmación para el cliente con la secuencia deferente.
                     ACK ack = new ACK(seq);
                     ack.Code();
 
-                    // Ahora enviamos este mensaje ACK al cliente para confirmar la recepción del mensaje.
+                    // Ahora enviamos este mensaje ACK al cliente para confirmar la recepción del mensaje. -> No implementado.
                 }
             }
 
