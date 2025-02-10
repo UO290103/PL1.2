@@ -74,9 +74,15 @@ namespace ClienteUDP
                         cliente.Send(data, data.Length, ip);
                     }
                     //Esperamos a recibir la ACK que envía el servidor
-                    // data = cliente.Receive(ref ip);
-                    //ACK Ack = new ACK();
-                    seq++;
+                    data = cliente.Receive(ref ip);
+                    //Creamos la ACK vacia y decodificamos lo recibido en ella
+                    ACK Ack = new ACK();
+                    Ack.Decode(data);
+                    //Comprobamos si el numero de seq de la ACK corresponde con el actual
+                    if (seq == Ack.seq) {
+                        //En el caso de que si sea se aumenta el numero de secuencia
+                        seq++;
+                    }
                 }
             }
 
