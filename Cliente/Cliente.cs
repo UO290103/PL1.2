@@ -12,7 +12,7 @@ namespace ClienteUDP
         UdpClient cliente = new UdpClient();
         IPEndPoint ip = new IPEndPoint(IPAddress.Loopback, 50000);
         bool conexion = true; //Booleano que indica cuando la conexión está funcionando
-        int Prob_Fallo = 15; //Porcentaje de fallo en el envio del sistema (Entre 0 y 100)
+        int Prob_Fallo = 50; //Porcentaje de fallo en el envio del sistema (Entre 0 y 100)
         int seq = 0; //Variable donde se guarda el numero de secuencia 
         int num; //Variable donde se guarda el numero a enviar
         string[] numeros; //Array donde se guardara todos los numeros a enviar
@@ -51,7 +51,7 @@ namespace ClienteUDP
                 Console.WriteLine("Error durante la lectura del archivo: "+ex.Message);
                 conexion = false;
             }
-            cliente.Client.ReceiveTimeout = 500;
+            cliente.Client.ReceiveTimeout = 2000;
             var Rand = new Random();
             while (conexion)
             {
@@ -93,11 +93,30 @@ namespace ClienteUDP
                         {
                             //Esperamos a recibir la ACK que envía el servidor
                             data = cliente.Receive(ref ip);
+                            Console.WriteLine("Se recibe ACK");
                             //Creamos la ACK vacia y decodificamos lo recibido en ella
-                            ACK Ack = new ACK();
-                            Ack.Decode(data);
+                            ack.Decode(data);
                         }
+                        Console.WriteLine("Seq: " + seq);
                         seq++;
+                                          
+                        /*
+                        //Esperamos a recibir la ACK que envía el servidor
+                        data = cliente.Receive(ref ip);
+                        Console.WriteLine("Se ha recibido ACK");
+                        //Creamos la ACK vacia y decodificamos lo recibido en ella
+                        ACK Ack = new ACK();
+                        Ack.Decode(data);
+                        if(Ack.seq == seq)
+                        {
+                            Console.WriteLine("Seq correcto");
+                            seq++;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Seq incorrecto");
+                        }
+                        */
                     }
                     conexion = false;
                 }

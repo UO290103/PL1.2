@@ -41,20 +41,23 @@ namespace Servidor
                     Datos msg = new Datos();
                     msg.Decode(bytes);
 
-                    if (msg.seq == 0)
-                    {
-                        Console.WriteLine("Conexión establecida con el cliente.");
-                    }
 
                     // Guardaremos los datos recibidos en un archivo de texto. -> No implementado.
 
                     // Deberemos de crear un comprobador de correspondencia de la secuencia con el mensaje recibido.
                     if (msg.seq == seq)
                     {
+
+                        if (msg.seq == 0)
+                        {
+                            Console.WriteLine("Conexión establecida con el cliente.");
+                        }
+
                         Console.WriteLine("Secuencia recibida: " + msg.seq + " Mensaje recibido: " + msg.num);
+                        seq++;
                         
                         // En caso de seq correcta -> Incrementamos la secuencia.
-                        seq++;
+
                     }
 
                     // Esta variable se usa durante la comprobación de funcionamiento! El mensaje se descartaría.
