@@ -27,14 +27,6 @@ namespace Servidor
                 // Bucle infinito para realizar la recepción de mensajes por parte del cliente.
                 while (true)
                 {
-
-                    if (seq == 0)
-                    {
-                        Console.WriteLine("Esperando conexión con el cliente...");
-                        seq++;
-                        Console.WriteLine(seq); //Mensaje de comprobación
-                    }
-
                     // Debemos recibir el mensaje por parte del cliente.
                     byte[] bytes = cliente.Receive(ref ip);
 
@@ -48,6 +40,11 @@ namespace Servidor
                     // Debemos de convertir los datos recibidos a un string decodificandolos.
                     Datos msg = new Datos();
                     msg.Decode(bytes);
+
+                    if (msg.seq == 0)
+                    {
+                        Console.WriteLine("Conexión establecida con el cliente.");
+                    }
 
                     // Guardaremos los datos recibidos en un archivo de texto. -> No implementado.
 
