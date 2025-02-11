@@ -11,8 +11,7 @@ namespace ClienteUDP
     {
         UdpClient cliente = new UdpClient();
         IPEndPoint ip = new IPEndPoint(IPAddress.Loopback, 50000);
-
-        // Número de secuencia
+        
         int seq = 0;
         int num;
         string[] numeros;
@@ -20,7 +19,7 @@ namespace ClienteUDP
         string linea;
         byte[] data;
         public void Run()
-        {
+        {  
             try //Bloque Try-catch unico para la lectura del archivo de texto
             {
                 //Inicializamos stream de lectura con el path del archivo a leer
@@ -43,6 +42,7 @@ namespace ClienteUDP
                 }
                 //Pasamos la lista completa a un array
                 numeros = list.ToArray();
+                Secuencia.Close();
             }
             catch (Exception ex) {
                 //Si hay un error durante este proceso se indica en consola, se cierra la conexión y se retorna
@@ -50,7 +50,7 @@ namespace ClienteUDP
                 cliente.Close();
                 return;
             }
-            try //Bloue Try-catch para el envio de datos y recibo de ACKs
+            try //Bloque Try-catch para el envio de datos y recibo de ACKs
             {
                 //Bucle para el envio y recepción no para hasta que el numero de secuencia sea mayor a la cantidad de numeros que tengamos que mandar
                 while (seq <= numeros.Length) {
@@ -73,16 +73,16 @@ namespace ClienteUDP
                         //Mandamos array de bytes por la conexión
                         cliente.Send(data, data.Length, ip);
                     }
-                    //Esperamos a recibir la ACK que envía el servidor
-                    data = cliente.Receive(ref ip);
-                    //Creamos la ACK vacia y decodificamos lo recibido en ella
-                    ACK Ack = new ACK();
-                    Ack.Decode(data);
-                    //Comprobamos si el numero de seq de la ACK corresponde con el actual
-                    if (seq == Ack.seq) {
-                        //En el caso de que si sea se aumenta el numero de secuencia
-                        seq++;
+                    ACK ack = new ACK(-1);
+                    while (ack.seq != seq)
+                    {
+                        //Esperamos a recibir la ACK que envía el servidor
+                        data = cliente.Receive(ref ip);
+                        //Creamos la ACK vacia y decodificamos lo recibido en ella
+                        ACK Ack = new ACK();
+                        Ack.Decode(data);
                     }
+                    seq++;
                 }
             }
 
