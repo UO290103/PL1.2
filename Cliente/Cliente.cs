@@ -14,8 +14,7 @@ namespace Cliente
         private bool _conexion = true;  // privado
         private const int _probFallo = 20;  // privado
         private int _seq = 0;  // privado
-        private int _num;  // privado
-        private string[] _numeros;  // privado
+        private int[] _numeros;  // privado
         private byte[] _data;  // privado
 
         public void Run()
@@ -23,25 +22,41 @@ namespace Cliente
             try // Bloque Try-catch único para la lectura del archivo de texto
             {
                 // Lista para ir guardando los números antes de en el array y string para las líneas del archivo.
-                List<string> _list = new List<string>();
+                List<int> _list = new List<int>();
                 string _linea;
-
+                int j;
                 // Inicializamos stream de lectura con el path del archivo a leer
                 StreamReader _secuencia = new StreamReader("C:\\Secuencias\\Secuencia.txt");
-
                 // Leemos la primera línea antes de entrar al bucle
                 _linea = _secuencia.ReadLine();
-
                 // Bucle para leer todas las líneas que haya en el archivo
                 while (_linea != null)
                 {
-                    // Las líneas deben ser de números y que estén separados por comas Ej 9,1,3,4
-                    // Separamos la línea por las comas en un array
-                    string[] _numsLinea = _linea.Split(",");
-                    for (int i = 0; i < _numsLinea.Length; i++)
+                    //Recorremos todos los caracteres de la linea
+                    for (int i = 0; i < _linea.Length; i++)
                     {
-                        // Recorremos toda la longitud del array y lo añadimos a una lista
-                        _list.Add(_numsLinea[i]);
+                       if( _linea[i] == '-')
+                        {
+                            if (Char.IsNumber(_linea[i+1]))
+                            {
+                                j = int.Parse(_linea[i + 1].ToString());
+                                _list.Add(-j);
+                            }
+                        }
+                        else
+                        {
+                            if (Char.IsNumber(_linea[i]))
+                            {
+                                if (i == 0)
+                                {
+                                    _list.Add(j = int.Parse(_linea[i].ToString()));
+                                }
+                                if(_linea[i-1] != '-')
+                                {
+                                    _list.Add(j = int.Parse(_linea[i].ToString()));
+                                }
+                            }
+                        }
                     }
                     // Leemos la siguiente línea del archivo
                     _linea = _secuencia.ReadLine();
@@ -82,10 +97,8 @@ namespace Cliente
                             // Se crea un número entre 0 y 99, si este número es menor a Prob_Fallo no se envía el mensaje.
                             if (_rand.Next(100) > _probFallo)
                             {
-                                // Obtenemos como entero el número correspondiente del array
-                                _num = int.Parse(_numeros[_seq - 1]);
                                 // Creamos el mensaje con seq correspondiente y número correspondiente
-                                Data _msg = new Data(_seq, _num);
+                                Data _msg = new Data(_seq, _numeros[_seq - 1]);
                                 _data = _msg.Encode();
                                 // Mandamos array de bytes por la conexión
                                 _cliente.Send(_data, _data.Length, _ip);
