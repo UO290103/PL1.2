@@ -11,17 +11,19 @@ namespace ClienteUDP
     {
         UdpClient cliente = new UdpClient();
         IPEndPoint ip = new IPEndPoint(IPAddress.Loopback, 50000);
-        
-        int seq = 0;
-        int num;
-        string[] numeros;
-        List<string> list = new List<string>();
-        string linea;
+        bool conexion = true; //Booleano que indica cuando la conexión está funcionando
+        int Prob_Fallo = 15; //Porcentaje de fallo en el envio del sistema (Entre 0 y 100)
+        int seq = 0; //Variable donde se guarda el numero de secuencia 
+        int num; //Variable donde se guarda el numero a enviar
+        string[] numeros; //Array donde se guardara todos los numeros a enviar
         byte[] data;
         public void Run()
         {  
             try //Bloque Try-catch unico para la lectura del archivo de texto
             {
+                //Lista para ir guardando los numeros antes de en el array y string para las lineas del archivo.
+                List<string> list = new List<string>();
+                string linea;
                 //Inicializamos stream de lectura con el path del archivo a leer
                 StreamReader Secuencia = new StreamReader("C:\\Secuencias\\Secuencia.txt");
                 //Leemos la primera linea antes de entrar al bucle
@@ -47,48 +49,74 @@ namespace ClienteUDP
             catch (Exception ex) {
                 //Si hay un error durante este proceso se indica en consola, se cierra la conexión y se retorna
                 Console.WriteLine("Error durante la lectura del archivo: "+ex.Message);
-                cliente.Close();
-                return;
+                conexion = false;
             }
-            try //Bloque Try-catch para el envio de datos y recibo de ACKs
+            cliente.Client.ReceiveTimeout = 500;
+            var Rand = new Random();
+            while (conexion)
             {
-                //Bucle para el envio y recepción no para hasta que el numero de secuencia sea mayor a la cantidad de numeros que tengamos que mandar
-                while (seq <= numeros.Length) {
-                    //Comprobamos si seq es 0, en ese caso se manda el mensaje para iniciar la conexión
-                    if (seq == 0)
+                try //Bloque Try-catch para el envio de datos y recibo de ACKs
+                {
+                    //Bucle para el envio y recepción no para hasta que el numero de secuencia sea mayor a la cantidad de numeros que tengamos que mandar
+                    while (seq <= numeros.Length)
                     {
-                        //Creamos el mensaje con seq = 0 y un numero que no importa y lo codificamos a un array de bytes
-                        Datos msg = new Datos(seq, 0);
-                        data = msg.Code();
-                        //Mandamos dicho array de bytes por la conexión
-                        cliente.Send(data,data.Length,ip);
+                        //Comprobamos si seq es 0, en ese caso se manda el mensaje para iniciar la conexión
+                        if (seq == 0)
+                        {
+                            //Creamos el mensaje con seq = 0 y un numero que no importa y lo codificamos a un array de bytes
+                            Datos msg = new Datos(seq, 0);
+                            data = msg.Code();
+                            //Mandamos dicho array de bytes por la conexión
+                            cliente.Send(data, data.Length, ip);
+                        }
+                        else //Else, resto de casos que no sean el primer mensaje de la conexión
+                        {
+                            //Se crea un numero entre 0 y 99, si este numero es menor a Prob_Fallo no se envía el mensaje.
+                            if (Rand.Next(100) > Prob_Fallo)
+                            {
+                                //Obtenemos como entero el numero correspondiente del array
+                                num = Int32.Parse(numeros[seq - 1]);
+                                //Creamos el mensaje con seq correspondiente y numero correspondiente
+                                Datos msg = new Datos(seq, num);
+                                data = msg.Code();
+                                //Mandamos array de bytes por la conexión
+                                cliente.Send(data, data.Length, ip);
+                                Console.WriteLine("Se ha enviado el numero");
+                            }
+                            else 
+                            {
+                                Console.WriteLine("Se ha fallado en el envío");
+                            }
+                        }
+                        ACK ack = new ACK(-1);
+                        while (ack.seq != seq)
+                        {
+                            //Esperamos a recibir la ACK que envía el servidor
+                            data = cliente.Receive(ref ip);
+                            //Creamos la ACK vacia y decodificamos lo recibido en ella
+                            ACK Ack = new ACK();
+                            Ack.Decode(data);
+                        }
+                        seq++;
                     }
-                    else //Else, resto de casos que no sean el primer mensaje de la conexión
-                    {
-                        //Obtenemos como entero el numero correspondiente del array
-                        num = Int32.Parse(numeros[seq - 1]);
-                        //Creamos el mensaje con seq correspondiente y numero correspondiente
-                        Datos msg = new Datos(seq, num);
-                        data = msg.Code();
-                        //Mandamos array de bytes por la conexión
-                        cliente.Send(data, data.Length, ip);
-                    }
-                    ACK ack = new ACK(-1);
-                    while (ack.seq != seq)
-                    {
-                        //Esperamos a recibir la ACK que envía el servidor
-                        data = cliente.Receive(ref ip);
-                        //Creamos la ACK vacia y decodificamos lo recibido en ella
-                        ACK Ack = new ACK();
-                        Ack.Decode(data);
-                    }
-                    seq++;
+                    conexion = false;
                 }
-            }
 
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
+                catch (SocketException se)
+                {
+                    if (se.SocketErrorCode == SocketError.TimedOut)
+                    {
+                        // Ha habido un timeout: Se indica por consola que se va a reenviar el dato
+                        Console.WriteLine("Ha habido un timeout. Se procede a reenviar la información");
+                    }
+
+                    else
+                    {
+                        //Otros errores: Mostramos por pantalla y cerramos la conexión
+                        Console.WriteLine(se.ErrorCode + ": " + se.Message);
+                        conexion = false;
+                    }
+                }
             }
             cliente.Close();
         }
