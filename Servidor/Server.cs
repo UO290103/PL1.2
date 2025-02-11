@@ -71,6 +71,8 @@ namespace Servidor
                         Console.WriteLine("Mensaje duplicado: " + msg.num);
                         Console.WriteLine("Secuencia esperada: " + seq);
                         Console.WriteLine("Secuencia recibida: " + msg.seq);
+                        
+                        
                     }
 
                     // Creamos un mensaje de confirmación para el cliente con la secuencia deferente.
@@ -79,6 +81,9 @@ namespace Servidor
 
                     // Enviamos el mensaje de confirmación al cliente.
                     cliente.Send(ack, ack.Length, ip);
+
+
+                    // Ahora enviamos este mensaje ACK al cliente para confirmar la recepción del mensaje. -> No implementado.
                 }
             }
 
