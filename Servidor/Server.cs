@@ -8,7 +8,7 @@ namespace Server
     public class Server
     {
         private const int Port = 50000;
-        private int failureProbability = 50;
+        private const int _probFallo = 20;
 
         private static void Run()
         {
@@ -63,17 +63,26 @@ namespace Server
                          * Mostrar el mensaje duplicado y la secuencia esperada.
                          */
 
-                        Console.WriteLine("Mensaje duplicado: " + msg.Number);
-                        Console.WriteLine("Secuencia esperada: " + sequenceNumber);
-                        Console.WriteLine("Secuencia recibida: " + msg.Seq);
+                        Console.WriteLine("Mensaje duplicado: {0} Secuencia Recibida: {1} Secuencia Esprada: {2}",
+                            msg.Number, msg.Seq, sequenceNumber);
                     }
 
                     // Crear un mensaje de respuesta para el cliente con la secuencia
                     ACK response = new ACK(msg.Seq);
                     acknowledgment = response.Encode();
 
-                    // Enviar el mensaje de reconocimiento al cliente
-                    client.Send(acknowledgment, acknowledgment.Length, ip);
+                    // Hacemos que exista la posibilidad de que un ACK no llegue al cliente.
+
+                    var _rand = new Random();
+                    if (_rand.Next(100) > _probFallo)
+                    {
+                        // Enviar el mensaje de reconocimiento al cliente
+                        client.Send(acknowledgment, acknowledgment.Length, ip);
+                    }
+                    else
+                    {
+                        Console.WriteLine("El ACK se ha perdido.");
+                    }
 
                     // El reconocimiento se envía de vuelta al cliente para confirmar la recepción del mensaje -> No implementado
                 }

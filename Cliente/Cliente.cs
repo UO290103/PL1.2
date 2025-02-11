@@ -12,7 +12,7 @@ namespace Cliente
         private UdpClient _cliente = new UdpClient();  // privado
         private IPEndPoint _ip = new IPEndPoint(IPAddress.Loopback, 50000);  // privado
         private bool _conexion = true;  // privado
-        private const int _probFallo = 50;  // privado
+        private const int _probFallo = 20;  // privado
         private int _seq = 0;  // privado
         private int _num;  // privado
         private string[] _numeros;  // privado
@@ -76,6 +76,7 @@ namespace Cliente
                             // Mandamos dicho array de bytes por la conexión
                             _cliente.Send(_data, _data.Length, _ip);
                         }
+
                         else // Else, resto de casos que no sean el primer mensaje de la conexión
                         {
                             // Se crea un número entre 0 y 99, si este número es menor a Prob_Fallo no se envía el mensaje.
@@ -90,6 +91,7 @@ namespace Cliente
                                 _cliente.Send(_data, _data.Length, _ip);
                                 Console.WriteLine("Se ha enviado el número");
                             }
+
                             else
                             {
                                 Console.WriteLine("Se ha fallado en el envío");
