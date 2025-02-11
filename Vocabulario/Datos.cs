@@ -1,57 +1,58 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Vocabulario
 {
-    public class Datos : ICodec //Mensaje que manda el emisor al receptor contiene el numero de secuencia y el numero a transferir
+    public class Data : ICodec // Mensaje enviado por el emisor al receptor, contiene el número de secuencia y el número a transferir
     {
-        //Atributos de la clase Datos
+        // Atributos de la clase
         private int _seq;
         private int _num;
 
-        //Propiedades para acceder a los atributos
-        public int seq
+        // Propiedades para acceder a los atributos
+        public int Seq
         {
             get { return _seq; }
             set { _seq = value; }
         }
-        public int num
+        public int Number
         {
             get { return _num; }
             set { _num = value; }
         }
-        //Constructor de la clase
-        public Datos(int s = 0, int n = 0)
+
+        // Constructor de la clase
+        public Data(int seq = 0, int num = 0)
         {
-            _seq = s;
-            _num = n;
+            _seq = seq;
+            _num = num;
         }
-        //Metodo que obtiene el numero de secuencia y el numero transferido de un array de bytes
-        public void Decode(byte[] Codif)
+
+        // Método que recupera el número de secuencia y el número transferido desde un array de bytes
+        public void Decode(byte[] encodedData)
         {
-            //Crear stream de lectura
-            MemoryStream ms = new MemoryStream(Codif);
-            BinaryReader reader = new BinaryReader(ms); 
-            //Leer el numero de secuencia y el numero transmitido
+            // Crear un flujo para lectura
+            MemoryStream ms = new MemoryStream(encodedData);
+            BinaryReader reader = new BinaryReader(ms);
+            // Leer el número de secuencia y el número transmitido
             _seq = reader.ReadInt32();
             _num = reader.ReadInt32();
         }
-        //Metodo que codifica en un array de bytes el numero de secuencia y el numero tranferido
-        public byte[] Code()
+
+        // Método que codifica el número de secuencia y el número transferido en un array de bytes
+        public byte[] Encode()
         {
-            //Crear el array de bytes y el stream de escritura
-            byte[] codif;
+            // Crear el array de bytes y el flujo de escritura
+            byte[] encodedData;
             MemoryStream ms = new MemoryStream();
             BinaryWriter writer = new BinaryWriter(ms);
-            //Escritura del numero de secuencia y del numero a transmitir
+            // Escribir el número de secuencia y el número a transmitir
             writer.Write(_seq);
             writer.Write(_num);
             writer.Flush();
-            //Obtención del array de bytes
-            codif = ms.ToArray();
-            return codif;
+            // Obtener el array de bytes
+            encodedData = ms.ToArray();
+            return encodedData;
         }
     }
 }

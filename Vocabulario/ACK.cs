@@ -1,52 +1,55 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Vocabulario
 {
-    public class ACK : ICodec //Mensaje que manda el receptor al emisor conteniendo unicamente el numero de secuencia
+    public class ACK : ICodec // Mensaje enviado por el receptor al emisor que contiene solo el número de secuencia
     {
-        //Atributos de la clase Datos
-        private int _seq;
+        // Campo privado
+        private int _sequenceNumber;
 
-        //Propiedades para acceder a los atributos
-        public int seq
+        // Propiedad pública
+        public int SequenceNumber
         {
-            get { return _seq; }
-            set { _seq = value; }
+            get { return _sequenceNumber; }
+            set { _sequenceNumber = value; }
         }
 
-        //Constructor de la clase
-        public ACK(int s = 0)
+        // Constructor de la clase
+        public ACK(int sequenceNumber = 0)
         {
-            _seq = s;
+            _sequenceNumber = sequenceNumber;
         }
 
-        //Metodo que obtiene el numero de secuencia de un array de bytes
-        public void Decode(byte[] Codif)
+        // Método que obtiene el número de secuencia de un array de bytes
+        public void Decode(byte[] encodedData)
         {
-            //Creación de stream de lectura
-            MemoryStream ms = new MemoryStream(Codif);
-            BinaryReader reader = new BinaryReader(ms);
-            //Obtener el numero de secuencia
-            _seq = reader.ReadInt32();
+            // Crear un flujo para lectura
+            using (MemoryStream memoryStream = new MemoryStream(encodedData))
+            using (BinaryReader reader = new BinaryReader(memoryStream))
+            {
+                // Obtener el número de secuencia
+                _sequenceNumber = reader.ReadInt32();
+            }
         }
 
-        //Metodo que codifica en un array de bytes el numero de secuencia
-        public byte[] Code()
+        // Método que codifica el número de secuencia en un array de bytes
+        public byte[] Encode()
         {
-            //Creación de buffer y streams de escritura
-            byte[] Codif;
-            MemoryStream ms = new MemoryStream();
-            BinaryWriter writer = new BinaryWriter(ms);
-            //Leer el numero de secuencia
-            writer.Write(_seq);
-            writer.Flush();
-            //Obtener el array de bytes
-            Codif = ms.ToArray();
-            return Codif;
+            // Crear un buffer y flujos de escritura
+            byte[] encodedData;
+            using (MemoryStream memoryStream = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(memoryStream))
+            {
+                // Escribir el número de secuencia
+                writer.Write(_sequenceNumber);
+                writer.Flush();
+
+                // Obtener el array de bytes
+                encodedData = memoryStream.ToArray();
+            }
+
+            return encodedData;
         }
     }
 }
-

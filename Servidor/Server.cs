@@ -1,101 +1,91 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using Vocabulario;
 
-namespace Servidor
+namespace Server
 {
-    public class server
+    public class Server
     {
-        private const int port = 50000;
+        private const int Port = 50000;
+        private int failureProbability = 50;
 
         private static void Run()
         {
-            // Inicializamos el puerto UDP y la dirección IP
-            UdpClient cliente = new UdpClient(port);
-            IPEndPoint ip = new IPEndPoint(IPAddress.Any, port);
-            bool conexion = false;
+            // Inicializar el puerto UDP y la dirección IP
+            UdpClient client = new UdpClient(Port);
+            IPEndPoint ip = new IPEndPoint(IPAddress.Any, Port);
+            bool isConnected = false;
 
-            byte[] ack;
-            int seq = 0;
+            byte[] acknowledgment;
+            int sequenceNumber = 0;
 
-            // Creamos una instancia try-catch para manejar excepciones
-
+            // Crear un bloque try-catch para manejar excepciones
             try
             {
-                // Bucle infinito para realizar la recepción de mensajes por parte del cliente.
+                // Bucle infinito para recibir mensajes del cliente
                 while (true)
                 {
-                    // Debemos recibir el mensaje por parte del cliente.
-                    byte[] bytes = cliente.Receive(ref ip);
+                    // Recibir el mensaje del cliente
+                    byte[] receivedBytes = client.Receive(ref ip);
 
-                    // Implementamos verificación de conexión.
-                    if (!conexion)
+                    // Verificar conexión
+                    if (!isConnected)
                     {
                         Console.WriteLine("Conexión establecida con el cliente.");
-                        conexion = true;
+                        isConnected = true;
                     }
 
-                    // Debemos de convertir los datos recibidos a un string decodificandolos.
-                    Datos msg = new Datos();
-                    msg.Decode(bytes);
+                    // Convertir los datos recibidos a una cadena decodificándolos
+                    Data msg = new Data();
+                    msg.Decode(receivedBytes);
 
+                    // Aquí almacenaríamos los datos recibidos en un archivo de texto -> No implementado
 
-                    // Guardaremos los datos recibidos en un archivo de texto. -> No implementado.
-
-                    // Deberemos de crear un comprobador de correspondencia de la secuencia con el mensaje recibido.
-                    if (msg.seq == seq)
+                    // Verificar si la secuencia recibida coincide con la secuencia esperada
+                    if (msg.Seq == sequenceNumber)
                     {
-
-                        if (msg.seq == 0)
+                        if (msg.Seq == 0)
                         {
-                            Console.WriteLine("Conexión establecida con el cliente.");
+                            Console.WriteLine("El cliente comienza a transmitir.");
                         }
 
-                        Console.WriteLine("Secuencia recibida: " + msg.seq + " Mensaje recibido: " + msg.num);
-                        seq++;
-                        
-                        // En caso de seq correcta -> Incrementamos la secuencia.
+                        Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
+                            msg.Seq, msg.Number);
+                        sequenceNumber++;
 
+                        // Si la secuencia es correcta -> Incrementar la secuencia
                     }
-
-                    // Esta variable se usa durante la comprobación de funcionamiento! El mensaje se descartaría.
                     else
                     {
-                        /* 
-                         * En caso de seq incorrecta -> No incrementamos la secuencia.
-                         * Además mostramos por consola el mensaje duplicado y la secuencia esperada.
+                        /*
+                         * Si la secuencia es incorrecta -> No incrementar la secuencia.
+                         * Mostrar el mensaje duplicado y la secuencia esperada.
                          */
 
-                        Console.WriteLine("Mensaje duplicado: " + msg.num);
-                        Console.WriteLine("Secuencia esperada: " + seq);
-                        Console.WriteLine("Secuencia recibida: " + msg.seq);
-                        
-                        
+                        Console.WriteLine("Mensaje duplicado: " + msg.Number);
+                        Console.WriteLine("Secuencia esperada: " + sequenceNumber);
+                        Console.WriteLine("Secuencia recibida: " + msg.Seq);
                     }
 
-                    // Creamos un mensaje de confirmación para el cliente con la secuencia deferente.
-                    ACK res = new ACK(msg.seq);
-                    ack = res.Code();
+                    // Crear un mensaje de respuesta para el cliente con la secuencia
+                    ACK response = new ACK(msg.Seq);
+                    acknowledgment = response.Encode();
 
-                    // Enviamos el mensaje de confirmación al cliente.
-                    cliente.Send(ack, ack.Length, ip);
+                    // Enviar el mensaje de reconocimiento al cliente
+                    client.Send(acknowledgment, acknowledgment.Length, ip);
 
-
-                    // Ahora enviamos este mensaje ACK al cliente para confirmar la recepción del mensaje. -> No implementado.
+                    // El reconocimiento se envía de vuelta al cliente para confirmar la recepción del mensaje -> No implementado
                 }
             }
-
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
-
             finally
             {
-                Console.WriteLine("Conexión finalizada.");
-                cliente.Close();
+                Console.WriteLine("Conexión terminada.");
+                client.Close();
             }
         }
 
