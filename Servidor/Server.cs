@@ -17,6 +17,7 @@ namespace Servidor
             IPEndPoint ip = new IPEndPoint(IPAddress.Any, port);
             bool conexion = false;
 
+            byte[] ack;
             int seq = 0;
 
             // Creamos una instancia try-catch para manejar excepciones
@@ -53,21 +54,34 @@ namespace Servidor
                     // Deberemos de crear un comprobador de correspondencia de la secuencia con el mensaje recibido.
                     if (msg.seq == seq)
                     {
-                        Console.WriteLine("Mensaje recibido: " + msg.num);
+                        Console.WriteLine("Secuencia recibida: " + msg.seq + " Mensaje recibido: " + msg.num);
+                        
+                        // En caso de seq correcta -> Incrementamos la secuencia.
                         seq++;
                     }
 
                     // Esta variable se usa durante la comprobación de funcionamiento! El mensaje se descartaría.
                     else
                     {
+                        /* 
+                         * En caso de seq incorrecta -> No incrementamos la secuencia.
+                         * Además mostramos por consola el mensaje duplicado y la secuencia esperada.
+                         */
+
                         Console.WriteLine("Mensaje duplicado: " + msg.num);
                         Console.WriteLine("Secuencia esperada: " + seq);
                         Console.WriteLine("Secuencia recibida: " + msg.seq);
+                        
+                        
                     }
 
                     // Creamos un mensaje de confirmación para el cliente con la secuencia deferente.
-                    ACK ack = new ACK(seq);
-                    ack.Code();
+                    ACK res = new ACK(msg.seq);
+                    ack = res.Code();
+
+                    // Enviamos el mensaje de confirmación al cliente.
+                    cliente.Send(ack, ack.Length, ip);
+
 
                     // Ahora enviamos este mensaje ACK al cliente para confirmar la recepción del mensaje. -> No implementado.
                 }
