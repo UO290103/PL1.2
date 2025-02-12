@@ -9,14 +9,14 @@ namespace Cliente
 {
     public class Cliente
     {
-        private UdpClient _cliente = new UdpClient();  // privado
-        private IPEndPoint _ip = new IPEndPoint(IPAddress.Loopback, 50000);  // privado
-        private string _path = "C:\\Secuencias\\Secuencia.txt";
-        private bool _conexion = true;  // privado
-        private const int _probFallo = 20;  // privado
-        private int _seq = 0;  // privado
-        private int[] _numeros;  // privado
-        private byte[] _data;  // privado
+        private UdpClient _cliente = new UdpClient();  // Cliente UDP
+        private IPEndPoint _ip = new IPEndPoint(IPAddress.Loopback, 50000);
+        private string _path = "C:\\Secuencias\\Secuencia.txt"; //Path al fichero del que se obtienen los números a transmitir
+        private bool _conexion = true;  // Booleano que indica cuando la conexión está activa o no
+        private const int _probFallo = 20;  // Porcentaje de fallo en el envío de mensajes (Entre 0 y 100)
+        private int _seq = 0;  // Número de secuencia del mensaje
+        private int[] _numeros;  // Array de enteros donde se guardan los números a transmitit
+        private byte[] _data;  // Array de bytes donde se codifica y decodifica la información
         
 
         public void Run()
@@ -42,10 +42,10 @@ namespace Cliente
                             //Comprobamos si el caracter es un guion
                             if (linea[i] == '-')
                             {
-                                //Comprobamos si el caracter siguiente es un número
-                                if (Char.IsNumber(linea[i + 1]))
+                                //Comprobamos si el caracter siguiente es un número y no es el último caracter de la linea
+                                if (Char.IsNumber(linea[i + 1]) && i+1 != linea.Length)
                                 {
-                                    //Tenemos número negativo añadimos el guion al string temporal
+                                    //Encontramos un número negativo añadimos el guion al string temporal
                                     temp = "-";
                                 }
                             }
