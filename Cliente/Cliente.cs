@@ -18,7 +18,15 @@ namespace Cliente
         private int[] _numeros;  // Array de enteros donde se guardan los números a transmitit
         private byte[] _data;  // Array de bytes donde se codifica y decodifica la información
         
-
+        public void Send(int seq, int num)
+        {
+            // Creamos el mensaje con seq correspondiente y número correspondiente
+            Data msg = new Data(seq, num);
+            _data = msg.Encode();
+            // Mandamos array de bytes por la conexión
+            _cliente.Send(_data, _data.Length, _ip);
+            //Console.WriteLine("Se ha enviado el número");
+        }
         public void Run()
         {
             try // Bloque Try-catch único para la lectura del archivo de texto
@@ -101,7 +109,7 @@ namespace Cliente
             }
 
             _cliente.Client.ReceiveTimeout = 2000;
-            var _rand = new Random();
+            var rand = new Random();
 
             while (_conexion)
             {
@@ -113,40 +121,34 @@ namespace Cliente
                         // Comprobamos si seq es 0, en ese caso se manda el mensaje para iniciar la conexión
                         if (_seq == 0)
                         {
-                            // Creamos el mensaje con seq = 0 y un número que no importa y lo codificamos a un array de bytes
-                            Data _msg = new Data(_seq, 0);
-                            _data = _msg.Encode();
-                            // Mandamos dicho array de bytes por la conexión
-                            _cliente.Send(_data, _data.Length, _ip);
+                            //Mandamos el primer mensaje con _seq = 0 y un número sin importancia
+                            Send(_seq, 0);
                         }
 
                         else // Else, resto de casos que no sean el primer mensaje de la conexión
                         {
                             // Se crea un número entre 0 y 99, si este número es menor a Prob_Fallo no se envía el mensaje.
-                            if (_rand.Next(100) > _probFallo)
+                            if (rand.Next(100) > _probFallo)
                             {
-                                // Creamos el mensaje con seq correspondiente y número correspondiente
-                                Data _msg = new Data(_seq, _numeros[_seq - 1]);
-                                _data = _msg.Encode();
-                                // Mandamos array de bytes por la conexión
-                                _cliente.Send(_data, _data.Length, _ip);
-                                Console.WriteLine("Se ha enviado el número");
+                                //Se envía el mensaje con seq y num correspondiente
+                                Send(_seq, _numeros[_seq-1]);
                             }
-
+                            /*
                             else
                             {
                                 Console.WriteLine("Se ha fallado en el envío");
                             }
+                            */
                         }
 
-                        ACK _ack = new ACK(-1);
-                        while (_ack.SequenceNumber != _seq)
+                        ACK ack = new ACK(-1);
+                        while (ack.SequenceNumber != _seq)
                         {
                             // Esperamos a recibir la ACK que envía el servidor
                             _data = _cliente.Receive(ref _ip);
                             Console.WriteLine("Se recibe ACK");
                             // Creamos la ACK vacía y decodificamos lo recibido en ella
-                            _ack.Decode(_data);
+                            ack.Decode(_data);
                         }
                         Console.WriteLine("Seq: " + _seq);
                         _seq++;
