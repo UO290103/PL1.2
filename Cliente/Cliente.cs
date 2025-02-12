@@ -11,59 +11,87 @@ namespace Cliente
     {
         private UdpClient _cliente = new UdpClient();  // privado
         private IPEndPoint _ip = new IPEndPoint(IPAddress.Loopback, 50000);  // privado
+        private string _path = "C:\\Secuencias\\Secuencia.txt";
         private bool _conexion = true;  // privado
         private const int _probFallo = 20;  // privado
         private int _seq = 0;  // privado
         private int[] _numeros;  // privado
         private byte[] _data;  // privado
+        
 
         public void Run()
         {
             try // Bloque Try-catch único para la lectura del archivo de texto
             {
-                // Lista para ir guardando los números antes de en el array y string para las líneas del archivo.
-                List<int> _list = new List<int>();
-                string _linea;
-                int j;
+                // Lista para ir guardando los números antes de en el array
+                List<int> list = new List<int>();
+                //Strings para guardar las lineas del fichero y los numeros de forma temporal
+                string linea;
+                string temp = "";
                 // Inicializamos stream de lectura con el path del archivo a leer
-                StreamReader _secuencia = new StreamReader("C:\\Secuencias\\Secuencia.txt");
-                // Leemos la primera línea antes de entrar al bucle
-                _linea = _secuencia.ReadLine();
-                // Bucle para leer todas las líneas que haya en el archivo
-                while (_linea != null)
+                using (StreamReader file = new StreamReader(_path))
                 {
-                    //Recorremos todos los caracteres de la linea
-                    for (int i = 0; i < _linea.Length; i++)
+                    // Leemos la primera línea antes de entrar al bucle
+                    linea = file.ReadLine();
+                    // Bucle para leer todas las líneas que haya en el archivo
+                    while (linea != null)
                     {
-                       if( _linea[i] == '-')
+                        //Recorremos todos los caracteres de la linea
+                        for (int i = 0; i < linea.Length; i++)
                         {
-                            if (Char.IsNumber(_linea[i+1]))
+                            //Comprobamos si el caracter es un guion
+                            if (linea[i] == '-')
                             {
-                                j = int.Parse(_linea[i + 1].ToString());
-                                _list.Add(-j);
-                            }
-                        }
-                        else
-                        {
-                            if (Char.IsNumber(_linea[i]))
-                            {
-                                if (i == 0)
+                                //Comprobamos si el caracter siguiente es un número
+                                if (Char.IsNumber(linea[i + 1]))
                                 {
-                                    _list.Add(j = int.Parse(_linea[i].ToString()));
-                                }
-                                if(_linea[i-1] != '-')
-                                {
-                                    _list.Add(j = int.Parse(_linea[i].ToString()));
+                                    //Tenemos número negativo añadimos el guion al string temporal
+                                    temp = "-";
                                 }
                             }
+                            //No es un guion
+                            else
+                            {
+                                //Comprobamos si el caracter es un número
+                                if (Char.IsNumber(linea[i]))
+                                {
+                                    //Comprobamos si el numero es el último caracter de la linea
+                                    if (i + 1 == linea.Length)
+                                    {
+                                        //Lo es, por lo que lo guardamos directamente en la lista
+                                        temp = temp + linea[i];
+                                        list.Add(int.Parse(temp));
+                                        temp = "";
+                                    }
+                                    //No es el último caracter
+                                    else
+                                    {
+                                        //Comprobamos si el siguiente caracter tambien es un número
+                                        if (Char.IsNumber(linea[i + 1]))
+                                        {
+                                            //Lo añadimos al string temporal ya que es un número de varios digitos
+                                            temp = temp + linea[i];
+                                        }
+                                        //El siguiente caracter no es un número
+                                        else
+                                        {
+                                            //Añadimos el número al string temporal y lo añadimos a la lista siendo un entero
+                                            temp = temp + linea[i];
+                                            list.Add(int.Parse(temp));
+                                            //Reiniciamos el string temporal para el siguiente número
+                                            temp = "";
+                                        }
+                                    }
+                                }
+                            }
                         }
+                        // Leemos la siguiente línea del archivo
+                        linea = file.ReadLine();
                     }
-                    // Leemos la siguiente línea del archivo
-                    _linea = _secuencia.ReadLine();
+                    // Pasamos la lista completa a un array
+                    _numeros = list.ToArray();
+                    file.Close();
                 }
-                // Pasamos la lista completa a un array
-                _numeros = _list.ToArray();
-                _secuencia.Close();
             }
             catch (Exception ex)
             {
