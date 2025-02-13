@@ -17,8 +17,8 @@ namespace Server
             IPEndPoint ip = new IPEndPoint(IPAddress.Any, Port);
             bool isConnected = false;
 
-            byte[] acknowledgment;
-            int sequenceNumber = 0;
+            byte[] ack;
+            int seq = 0;
 
             // Crear un bloque try-catch para manejar excepciones
             try
@@ -33,6 +33,7 @@ namespace Server
                     if (!isConnected)
                     {
                         Console.WriteLine("Conexión establecida con el cliente.");
+                        seq = 0;
                         isConnected = true;
                     }
 
@@ -43,7 +44,7 @@ namespace Server
                     // Aquí almacenaríamos los datos recibidos en un archivo de texto -> No implementado
 
                     // Verificar si la secuencia recibida coincide con la secuencia esperada
-                    if (msg.Seq == sequenceNumber)
+                    if (msg.Seq == seq)
                     {
                         if (msg.Seq == 0)
                         {
@@ -52,7 +53,7 @@ namespace Server
 
                         Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
                             msg.Seq, msg.Number);
-                        sequenceNumber++;
+                        seq++;
 
                         // Si la secuencia es correcta -> Incrementar la secuencia
                     }
@@ -64,25 +65,39 @@ namespace Server
                          */
 
                         Console.WriteLine("Mensaje duplicado: {0} Secuencia Recibida: {1} Secuencia Esprada: {2}",
-                            msg.Number, msg.Seq, sequenceNumber);
+                            msg.Number, msg.Seq, seq);
                     }
 
-                    // Crear un mensaje de respuesta para el cliente con la secuencia
-                    ACK response = new ACK(msg.Seq);
-                    acknowledgment = response.Encode();
 
-                    // Hacemos que exista la posibilidad de que un ACK no llegue al cliente.
-
-                    var _rand = new Random();
-                    if (_rand.Next(100) > _probFallo)
+                    if (seq != 0)
                     {
-                        // Enviar el mensaje de reconocimiento al cliente
-                        client.Send(acknowledgment, acknowledgment.Length, ip);
+                        // Crear un mensaje de respuesta para el cliente con la secuencia
+                        ACK response = new ACK(msg.Seq);
+                        ack = response.Encode();
+
+                        // Hacemos que exista la posibilidad de que un ACK no llegue al cliente.
+
+                        var _rand = new Random();
+                        if (_rand.Next(100) > _probFallo)
+                        {
+                            // Enviar el mensaje de reconocimiento al cliente
+                            client.Send(ack, ack.Length, ip);
+                        }
+                        else
+                        {
+                            Console.WriteLine("El ACK se ha perdido.");
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("El ACK se ha perdido.");
+                        Console.WriteLine("La comunicación ha finalizado.");
+                        seq = 0;
+                        ACK final = new ACK(-1);
+                        ack = final.Encode();
+                        client.Send(ack, ack.Length, ip);
+                        isConnected = false;
                     }
+                    
 
                     // El reconocimiento se envía de vuelta al cliente para confirmar la recepción del mensaje -> No implementado
                 }
