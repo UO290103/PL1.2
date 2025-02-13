@@ -17,6 +17,7 @@ namespace Cliente
         private int _seq = 0;  // Número de secuencia del mensaje
         private int[] _numeros;  // Array de enteros donde se guardan los números a transmitit
         private byte[] _data;  // Array de bytes donde se codifica y decodifica la información
+        private bool _test;
         
         public void Send(int seq, int num)
         {
@@ -27,8 +28,10 @@ namespace Cliente
             _cliente.Send(_data, _data.Length, _ip);
             //Console.WriteLine("Se ha enviado el número");
         }
+
         public void Run()
         {
+            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
             try // Bloque Try-catch único para la lectura del archivo de texto
             {
                 // Lista para ir guardando los números antes de en el array

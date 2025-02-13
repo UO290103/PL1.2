@@ -12,6 +12,7 @@ namespace Server
         private static UdpClient _client = new UdpClient(Port);
         private static IPEndPoint _ip = new IPEndPoint(IPAddress.Any, Port);
         private const int _probFallo = 20;
+        private const bool _test = true;
 
 
         // Métodos
@@ -60,14 +61,17 @@ namespace Server
                         {
                             Console.WriteLine("El cliente comienza a transmitir.");
                         }
-
-                        Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
+                        if (_test)
+                        {
+                            // Comandos para comprobar el correcto funcionamiento
+                            Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
                             msg.Seq, msg.Number);
-                        seq++;
+                            seq++;
+                        }
 
                         // Si la secuencia es correcta -> Incrementar la secuencia
                     }
-                    else
+                    else if (_test)
                     {
                         /*
                          * Si la secuencia es incorrecta -> No incrementar la secuencia.
