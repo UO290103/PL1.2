@@ -1,5 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 using Vocabulario;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Collections;
 
 namespace Tests
 {
@@ -74,6 +79,67 @@ namespace Tests
             ack2.Decode(testBytes);
             // Comprobar si ack1.SequenceNumber y ack2.SequenceNumber son iguales
             Assert.AreEqual(ack1.SequenceNumber, ack2.SequenceNumber);
+        }
+    }
+
+    [TestClass]
+    public class NumberReaderTest
+    {
+        public object Dir { get; private set; }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))] // Espera una ArgumentNullException
+        public void TestReadFilePathNull()
+        {
+            // Creamos una instancia de NumberReader.
+            FileReader numberReader = new FileReader();
+
+            // Intentamos pasar un path nulo y comprobamos que se lanza ArgumentNullException.
+            numberReader.Reader(null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FileNotFoundException))] // Espera un FileNotFoundException
+        public void TestReadNoDataFilePath()
+        {
+            /*
+             * Comprobamos el correcto uso de la excepción en caso
+             * de no encontrar un archivo con el nombre.
+             */
+            FileReader numberReader = new FileReader();
+
+            // Comprobamos la inexistencia del archivo con su excepción.
+            numberReader.Reader("InexistentFile.txt");
+        }
+
+        [TestMethod]
+        public void TestReadFileData()
+        {
+            FileReader numberReader = new FileReader();
+
+            string filePath = "TestFileReader.txt";
+
+            var numbers = numberReader.Reader(filePath);
+
+            CollectionAssert.AreEqual(
+                new List<string> { "0", "1", "2", "3", "4", "5", "6", "-1", "-2", "-3", "5" },
+                numbers.ToList()
+                );
+        }
+
+        [TestMethod]
+        public void TestReadLineData()
+        {
+            var fileReader = new FileReader();
+            string line = "Esto123es4una567prueba89-1";
+            // Acceder a LineReader a través de un método público
+            var result = typeof(FileReader)
+                .GetMethod("LineReader", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .Invoke(fileReader, new object[] { line }) as IEnumerable;
+
+            CollectionAssert.AreEqual(
+                new List<string> { "123", "4", "567", "89", "-1" },
+                result.Cast<string>().ToList());
         }
     }
 }

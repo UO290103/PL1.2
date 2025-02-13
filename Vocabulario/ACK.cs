@@ -15,6 +15,8 @@ namespace Vocabulario
             set { _sequenceNumber = value; }
         }
 
+        public int Length { get; set; }
+
         // Constructor de la clase
         public ACK(int sequenceNumber = 0)
         {
