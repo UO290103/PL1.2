@@ -8,7 +8,7 @@ namespace Server
     public class Server
     {
         private const int Port = 50000;
-        private const int _probFallo = 20;
+        private const int _probFallo = 0;
 
         private static void Run()
         {
@@ -33,7 +33,6 @@ namespace Server
                     if (!isConnected)
                     {
                         Console.WriteLine("Conexión establecida con el cliente.");
-                        seq = 0;
                         isConnected = true;
                     }
 
@@ -69,7 +68,7 @@ namespace Server
                     }
 
 
-                    if (seq != 0)
+                    if (msg.Seq != -1)
                     {
                         // Crear un mensaje de respuesta para el cliente con la secuencia
                         ACK response = new ACK(msg.Seq);

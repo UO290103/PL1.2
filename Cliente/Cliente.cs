@@ -13,7 +13,7 @@ namespace Cliente
         private IPEndPoint _ip = new IPEndPoint(IPAddress.Loopback, 50000);
         private string _path = "C:\\Secuencias\\Secuencia.txt"; //Path al fichero del que se obtienen los números a transmitir
         private bool _conexion = true;  // Booleano que indica cuando la conexión está activa o no
-        private const int _probFallo = 20;  // Porcentaje de fallo en el envío de mensajes (Entre 0 y 100)
+        private const int _probFallo = 0;  // Porcentaje de fallo en el envío de mensajes (Entre 0 y 100)
         private int _seq = 0;  // Número de secuencia del mensaje
         private int[] _numeros;  // Array de enteros donde se guardan los números a transmitit
         private byte[] _data;  // Array de bytes donde se codifica y decodifica la información
@@ -27,6 +27,7 @@ namespace Cliente
             _cliente.Send(_data, _data.Length, _ip);
             //Console.WriteLine("Se ha enviado el número");
         }
+
         public void Receive()
         {
             ACK ack = new ACK(-1);
@@ -41,6 +42,7 @@ namespace Cliente
             //Console.WriteLine("Seq: " + _seq);
             _seq++;
         }
+
         public void Run()
         {
             try // Bloque Try-catch único para la lectura del archivo de texto
@@ -160,8 +162,9 @@ namespace Cliente
                     bool final = true;
                     while (final)
                     {
+                        _seq = -1;
                         //Mandamos mensaje con seq = -1 para indicar que la transmisión se acabo
-                        Send(-1, 0);
+                        Send(_seq, 0);
                         //Esperamos a recibir la ACK del mensaje
                         Receive();
                         final = false;
