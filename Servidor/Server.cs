@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using Vocabulario;
+using System.IO; // Para realizar lectura y escritura de archivos.
 
 namespace Server
 {
@@ -16,7 +17,8 @@ namespace Server
             UdpClient client = new UdpClient(Port);
             IPEndPoint ip = new IPEndPoint(IPAddress.Any, Port);
             bool isConnected = false;
-
+            int cont = 0; // Contador para archivos.
+            string path = string.Format("C:\\Secuencias\\Recibidas\\data{0}.txt", cont);
             byte[] ack;
             int seq = 0;
 
@@ -34,6 +36,14 @@ namespace Server
                     {
                         Console.WriteLine("Conexión establecida con el cliente.");
                         isConnected = true;
+
+                        // Creamos el archivo donde guardamos los valores recibidos.
+
+                        using (StreamWriter wr = new StreamWriter(path, append: false))
+                        {
+                            Console.WriteLine("Archivo {0} creado.", path);
+                        }
+                        
                     }
 
                     // Convertir los datos recibidos a una cadena decodificándolos
@@ -49,9 +59,20 @@ namespace Server
                         {
                             Console.WriteLine("El cliente comienza a transmitir.");
                         }
-
-                        Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
+                        else
+                        {
+                            Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
                             msg.Seq, msg.Number);
+
+                            // Ahora escribimos el dato recibido en el archivo.
+                            using (StreamWriter wr = new StreamWriter(path, append: true))
+                            {
+                                wr.WriteLine(msg.Number);
+                                wr.Close();
+                            }
+                        }
+                        
+
                         seq++;
 
                         // Si la secuencia es correcta -> Incrementar la secuencia
@@ -95,6 +116,8 @@ namespace Server
                         ack = final.Encode();
                         client.Send(ack, ack.Length, ip);
                         isConnected = false;
+                        cont++;
+                        path = string.Format("C:\\Secuencias\\Recibidas\\data{0}.txt", cont);
                     }
                     
 
