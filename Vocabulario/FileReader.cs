@@ -38,7 +38,8 @@ namespace Vocabulario
                 }
             }
 
-            return numbers;
+            // Devolvemos el array de números.
+            return numbers.ToArray(); 
         }
 
 
@@ -50,24 +51,28 @@ namespace Vocabulario
 
             for (int i = 0; i < line.Length; i++)
             {
-                // Si el carácter actual es un dígito, lo agregamos a temp.
-                if (Char.IsNumber(line[i]))
+                // Comprobamos si el caracter actual es un '-' y el siguiente un número.
+                if (line[i] == '-' && i + 1 < line.Length && Char.IsNumber(line[i + 1]))
                 {
-                    temp += line[i];
-                }
-                // Si el carácter actual es un guion y es el inicio de un número negativo.
-                else if (line[i] == '-' && i + 1 < line.Length && Char.IsNumber(line[i + 1]) && (i == 0 || !Char.IsNumber(line[i - 1])))
-                {
-                    temp += line[i]; // Agregamos el guion a temp.
-                }
-                else
-                {
-                    // Si encontramos un carácter no numérico y temp no está vacío, devolvemos el número acumulado.
                     if (temp.Length > 0)
                     {
                         yield return temp;
-                        temp = ""; // Reiniciamos la cadena temporal.
+                        temp = "";
                     }
+                    temp += "-"; // Agregamos el símbolo negativo.
+                }
+
+                // Comprobamos si el caracter actual es un nº.
+                else if (Char.IsNumber(line[i]))
+                {
+                    temp += line[i]; // Agregamos número.
+                }
+
+                // Si encontramos un caracter no numérico y temp no está vacío, devolvemos el número.
+                else if (temp.Length > 0)
+                {
+                    yield return temp;
+                    temp = ""; // Reseteamos variable temp.
                 }
             }
 
