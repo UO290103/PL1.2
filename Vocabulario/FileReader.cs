@@ -8,7 +8,6 @@ namespace Vocabulario
     {
         public int[] Reader(string path)
         {
-            int[] res;
             // Especificamos las posibles excepciones.
 
             if (path == null)
@@ -41,8 +40,7 @@ namespace Vocabulario
             }
 
             // Devolvemos la lista de numeros.
-            res = numbers.ToArray();
-            return res;
+            return numbers.ToArray();
         }
 
 

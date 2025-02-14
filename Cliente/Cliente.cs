@@ -18,6 +18,7 @@ namespace Cliente
         private int[] _numeros;  // Array de enteros donde se guardan los números a transmitit
         private byte[] _data;  // Array de bytes donde se codifica y decodifica la información
         private bool _test;
+        private FileReader numReader = new FileReader(); // Invocamos el método para leer los números
         
         public void Send(int seq, int num)
         {
@@ -31,85 +32,7 @@ namespace Cliente
 
         public void Run()
         {
-            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
-            try // Bloque Try-catch único para la lectura del archivo de texto
-            {
-                // Lista para ir guardando los números antes de en el array
-                List<int> list = new List<int>();
-                //Strings para guardar las lineas del fichero y los numeros de forma temporal
-                string linea;
-                string temp = "";
-                // Inicializamos stream de lectura con el path del archivo a leer
-                using (StreamReader file = new StreamReader(_path))
-                {
-                    // Leemos la primera línea antes de entrar al bucle
-                    linea = file.ReadLine();
-                    // Bucle para leer todas las líneas que haya en el archivo
-                    while (linea != null)
-                    {
-                        //Recorremos todos los caracteres de la linea
-                        for (int i = 0; i < linea.Length; i++)
-                        {
-                            //Comprobamos si el caracter es un guion
-                            if (linea[i] == '-')
-                            {
-                                //Comprobamos si el caracter siguiente es un número y no es el último caracter de la linea
-                                if (Char.IsNumber(linea[i + 1]) && i+1 != linea.Length)
-                                {
-                                    //Encontramos un número negativo añadimos el guion al string temporal
-                                    temp = "-";
-                                }
-                            }
-                            //No es un guion
-                            else
-                            {
-                                //Comprobamos si el caracter es un número
-                                if (Char.IsNumber(linea[i]))
-                                {
-                                    //Comprobamos si el numero es el último caracter de la linea
-                                    if (i + 1 == linea.Length)
-                                    {
-                                        //Lo es, por lo que lo guardamos directamente en la lista
-                                        temp = temp + linea[i];
-                                        list.Add(int.Parse(temp));
-                                        temp = "";
-                                    }
-                                    //No es el último caracter
-                                    else
-                                    {
-                                        //Comprobamos si el siguiente caracter tambien es un número
-                                        if (Char.IsNumber(linea[i + 1]))
-                                        {
-                                            //Lo añadimos al string temporal ya que es un número de varios digitos
-                                            temp = temp + linea[i];
-                                        }
-                                        //El siguiente caracter no es un número
-                                        else
-                                        {
-                                            //Añadimos el número al string temporal y lo añadimos a la lista siendo un entero
-                                            temp = temp + linea[i];
-                                            list.Add(int.Parse(temp));
-                                            //Reiniciamos el string temporal para el siguiente número
-                                            temp = "";
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        // Leemos la siguiente línea del archivo
-                        linea = file.ReadLine();
-                    }
-                    // Pasamos la lista completa a un array
-                    _numeros = list.ToArray();
-                    file.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                // Si hay un error durante este proceso se indica en consola, se cierra la conexión y se retorna
-                Console.WriteLine("Error durante la lectura del archivo: " + ex.Message);
-                _conexion = false;
-            }
+            _numeros = numReader.Reader(_path);
 
             _cliente.Client.ReceiveTimeout = 2000;
             var rand = new Random();
