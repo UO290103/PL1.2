@@ -7,14 +7,15 @@ namespace Server
 {
     public class Server
     {
-        private const int Port = 50000;
+        private const int _port = 50000;
         private const int _probFallo = 0;
+        private const bool _test = true;
 
         private static void Run()
         {
             // Inicializar el puerto UDP y la dirección IP
-            UdpClient client = new UdpClient(Port);
-            IPEndPoint ip = new IPEndPoint(IPAddress.Any, Port);
+            UdpClient client = new UdpClient(_port);
+            IPEndPoint ip = new IPEndPoint(IPAddress.Any, _port);
             bool isConnected = false;
 
             byte[] ack;
@@ -62,9 +63,12 @@ namespace Server
                          * Si la secuencia es incorrecta -> No incrementar la secuencia.
                          * Mostrar el mensaje duplicado y la secuencia esperada.
                          */
-
-                        Console.WriteLine("Mensaje duplicado: {0} Secuencia Recibida: {1} Secuencia Esprada: {2}",
+                        if (_test)
+                        {
+                            Console.WriteLine("Mensaje duplicado: {0} Secuencia Recibida: {1} Secuencia Esprada: {2}",
                             msg.Number, msg.Seq, seq);
+                        }
+                        
                     }
 
 
