@@ -87,12 +87,10 @@ namespace Vocabulario
             }
         }
 
-        // Indicamos que no se emplea Writter en esta implementación.
-
-        public void Writter(List<int> elements, string archivePath)
+        // Indicamos una excepción ya que no implementa Writer
+        public void Writer(List<int> element, string archivePath)
         {
             throw new NotImplementedException();
         }
-
     }
 }

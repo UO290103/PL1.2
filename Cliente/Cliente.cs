@@ -84,7 +84,7 @@ namespace Cliente
                                 //Se envía el mensaje con seq y num correspondiente
                                 Send(_seq, _numbers[_seq - 1]);
                             }
-                            else if (_test)
+                            else
                             {
                                 Console.WriteLine("Se ha fallado en el envío");
                             }
