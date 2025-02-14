@@ -122,7 +122,7 @@ namespace Tests
             var numbers = numberReader.Reader(filePath);
 
             CollectionAssert.AreEqual(
-                new List<string> { "0", "1", "2", "3", "4", "5", "6", "-1", "-2", "-3", "5" },
+                new List<int> { 0, 1, 2, 3, 4, 5, 6, -1, -2, -3, 5},
                 numbers.ToList()
                 );
         }
@@ -132,14 +132,13 @@ namespace Tests
         {
             var fileReader = new FileReader();
             string line = "Esto123es4una567prueba89-1";
-            // Acceder a LineReader a través de un método público
-            var result = typeof(FileReader)
-                .GetMethod("LineReader", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .Invoke(fileReader, new object[] { line }) as IEnumerable;
+
+            
+            var result = fileReader.LineReader(line);
 
             CollectionAssert.AreEqual(
-                new List<string> { "123", "4", "567", "89", "-1" },
-                result.Cast<string>().ToList());
+                new List<int> { 123, 4, 567, 89, -1},
+                result.Cast<int>().ToList());
         }
     }
 }

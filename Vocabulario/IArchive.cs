@@ -4,9 +4,10 @@ using System.Text;
 
 namespace Vocabulario
 {
-    internal interface IArchive
+    internal interface IArchive<T>
     {
-        IEnumerable<string> Reader(string archivePath);
-        void Writter(List<string> elements, string archivePath);
+        T[] Reader(string archivePath); 
+        void Writter(List<T> elements, string archivePath);
+        IEnumerable<T> LineReader(string line);
     }
 }

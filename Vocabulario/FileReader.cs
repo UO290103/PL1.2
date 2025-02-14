@@ -4,11 +4,11 @@ using System.IO;
 
 namespace Vocabulario
 {
-    public class FileReader : IArchive
+    public class FileReader : IArchive<int>
     {
-        public IEnumerable<string> Reader(string path)
+        public int[] Reader(string path)
         {
-
+            int[] res;
             // Especificamos las posibles excepciones.
 
             if (path == null)
@@ -21,9 +21,11 @@ namespace Vocabulario
                 throw new FileNotFoundException("El archivo no existe.", path);
             }
 
-            var numbers = new List<string>();
-            
+            var numbers = new List<int>();
+
+
             // Vamos a leer línea por línea el archivo.
+            // El using se asegura que el archivo se cierre.
             using (var file = new StreamReader(path))
             {
                 string line;
@@ -38,14 +40,15 @@ namespace Vocabulario
                 }
             }
 
-            // Devolvemos el array de números.
-            return numbers.ToArray(); 
+            // Devolvemos la lista de numeros.
+            res = numbers.ToArray();
+            return res;
         }
 
 
         // Definimos el método de lectura de la línea
 
-        private IEnumerable<string> LineReader(string line)
+        public IEnumerable<int> LineReader(string line)
         {
             string temp = ""; // Cadena temporal para acumular dígitos.
 
@@ -54,9 +57,9 @@ namespace Vocabulario
                 // Comprobamos si el caracter actual es un '-' y el siguiente un número.
                 if (line[i] == '-' && i + 1 < line.Length && Char.IsNumber(line[i + 1]))
                 {
-                    if (temp.Length > 0)
+                    if (temp.Length > 0 && int.TryParse(temp, out int result))
                     {
-                        yield return temp;
+                        yield return result;
                         temp = "";
                     }
                     temp += "-"; // Agregamos el símbolo negativo.
@@ -71,21 +74,24 @@ namespace Vocabulario
                 // Si encontramos un caracter no numérico y temp no está vacío, devolvemos el número.
                 else if (temp.Length > 0)
                 {
-                    yield return temp;
+                    if (int.TryParse(temp, out int result))
+                    {
+                        yield return result;
+                    }
                     temp = ""; // Reseteamos variable temp.
                 }
             }
 
             // Si queda algún número acumulado en temp, lo devolvemos.
-            if (temp.Length > 0)
+            if (temp.Length > 0 && int.TryParse(temp, out int lastResult))
             {
-                yield return temp;
+                yield return lastResult;
             }
         }
 
         // Indicamos que no se emplea Writter en esta implementación.
 
-        public void Writter(List<string> elements, string archivePath)
+        public void Writter(List<int> elements, string archivePath)
         {
             throw new NotImplementedException();
         }
