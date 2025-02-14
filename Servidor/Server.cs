@@ -2,14 +2,15 @@
 using System.Net;
 using System.Net.Sockets;
 using Vocabulario;
-using System.IO; // Para realizar lectura y escritura de archivos.
+using System.IO;
 
-namespace Server
+namespace Servidor
 {
     public class Server
     {
         private const int Port = 50000;
         private const int _probFallo = 0;
+        private const bool _test = true;
 
         private static void Run()
         {
@@ -32,7 +33,7 @@ namespace Server
                     byte[] receivedBytes = client.Receive(ref ip);
 
                     // Verificar conexión
-                    if (!isConnected)
+                    if (!isConnected || seq == 0)
                     {
                         Console.WriteLine("Conexión establecida con el cliente.");
                         isConnected = true;
@@ -43,7 +44,7 @@ namespace Server
                         {
                             Console.WriteLine("Archivo {0} creado.", path);
                         }
-                        
+
                     }
 
                     // Convertir los datos recibidos a una cadena decodificándolos
@@ -61,8 +62,12 @@ namespace Server
                         }
                         else
                         {
-                            Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
-                            msg.Seq, msg.Number);
+                            if (_test)
+                            {
+                                Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
+                                    msg.Seq, msg.Number);
+                            }
+
 
                             // Ahora escribimos el dato recibido en el archivo.
                             using (StreamWriter wr = new StreamWriter(path, append: true))
@@ -71,7 +76,7 @@ namespace Server
                                 wr.Close();
                             }
                         }
-                        
+
 
                         seq++;
 
@@ -83,9 +88,12 @@ namespace Server
                          * Si la secuencia es incorrecta -> No incrementar la secuencia.
                          * Mostrar el mensaje duplicado y la secuencia esperada.
                          */
+                        if (_test)
+                        {
+                            Console.WriteLine("Mensaje duplicado: {0} Secuencia Recibida: {1} Secuencia Esprada: {2}",
+                                msg.Number, msg.Seq, seq);
+                        }
 
-                        Console.WriteLine("Mensaje duplicado: {0} Secuencia Recibida: {1} Secuencia Esprada: {2}",
-                            msg.Number, msg.Seq, seq);
                     }
 
 
@@ -119,7 +127,7 @@ namespace Server
                         cont++;
                         path = string.Format("C:\\Secuencias\\Recibidas\\data{0}.txt", cont);
                     }
-                    
+
 
                     // El reconocimiento se envía de vuelta al cliente para confirmar la recepción del mensaje -> No implementado
                 }
