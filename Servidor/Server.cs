@@ -17,9 +17,6 @@ namespace Servidor
 
         private static void Run()
         {
-            // Inicializar el puerto UDP y la dirección IP
-
-
 
             // Crear un bloque try-catch para manejar excepciones
             try
@@ -49,7 +46,7 @@ namespace Servidor
 
                         if (msg.Seq == -1)
                         {
-                            Console.WriteLine("Cliente desconectado. Guardando datos...");
+                            Console.WriteLine("Cliente desconectado.");
                             Response(msg.Seq);
 
                             isConnected = false;
@@ -100,6 +97,10 @@ namespace Servidor
             if (rand.Next(100) > _probFallo)
             {
                 client.Send(_ack, _ack.Length, ip);
+            }
+            else if (_test)
+            {
+                Console.WriteLine("Se ha perdido el ACK.");
             }
         }
     }
