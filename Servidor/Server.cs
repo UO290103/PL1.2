@@ -105,11 +105,14 @@ namespace Servidor
             ACK res = new ACK(seq);
             _ack = res.Encode();
             var rand = new Random();
-            if(rand.Next(100) > _probFallo)
+            if (rand.Next(100) > _probFallo)
             {
                 client.Send(_ack, _ack.Length, ip);
             }
-            
+            else if (_test)
+            {
+                Console.WriteLine("Se ha perdido el ACK.");
+            }
         }
     }
 }
