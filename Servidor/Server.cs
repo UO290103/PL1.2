@@ -14,24 +14,8 @@ namespace Server
         private const int _probFallo = 20;
         private const bool _test = true;
 
-
-        // Métodos
-        private static void Response(int s)
-        {
-            /*
-             * El método Response, recibe la secuencia que quiere emitir
-             * el servidor, crea un ACK, la codifica y finalmente la envia
-             * al emisor como confirmación de recepción.
-             */
-            byte[] ack;
-            ACK msg = new ACK(s);
-            ack= msg.Encode();
-            _client.Send(ack, ack.Length, _ip);
-        }
-
         private static void Run()
         {
-            bool isConnected = false;
             int seq = 0;
 
             // Crear un bloque try-catch para manejar excepciones
@@ -42,13 +26,6 @@ namespace Server
                 {
                     // Recibir el mensaje del cliente
                     byte[] receivedBytes = _client.Receive(ref _ip);
-
-                    // Verificar conexión
-                    if (!isConnected)
-                    {
-                        Console.WriteLine("Conexión establecida con el cliente.");
-                        isConnected = true;
-                    }
 
                     // Convertir los datos recibidos a una cadena decodificándolos
                     Data msg = new Data();
@@ -61,13 +38,11 @@ namespace Server
                         {
                             Console.WriteLine("El cliente comienza a transmitir.");
                         }
-                        if (_test)
-                        {
-                            // Comandos para comprobar el correcto funcionamiento
-                            Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
-                            msg.Seq, msg.Number);
-                            seq++;
-                        }
+
+                        // Comandos para comprobar el correcto funcionamiento
+                        Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
+                        msg.Seq, msg.Number);
+                        seq++;
 
                         // Si la secuencia es correcta -> Incrementar la secuencia
                     }
@@ -85,18 +60,6 @@ namespace Server
                     // Crear un mensaje de respuesta para el cliente con la secuencia
                     Response(msg.Seq);
 
-                    // Hacemos que exista la posibilidad de que un ACK no llegue al cliente.
-                    var _rand = new Random();
-                    if (_rand.Next(100) > _probFallo)
-                    {
-                        // Enviar el mensaje de reconocimiento al cliente
-                        Response(msg.Seq);
-                    }
-                    else
-                    {
-                        Console.WriteLine("El ACK se ha perdido.");
-                    }
-
                 }
             }
             catch (Exception e)
@@ -113,6 +76,25 @@ namespace Server
         public static void Main()
         {
             Run();
+        }
+
+        public static void Response(int seq)
+        {
+            /*
+             * Este método se emplea para el envio del ACK de manera
+             * que exista la posibilidad de que falle.
+             */
+            ACK res = new ACK(seq);
+            byte[] ack = res.Encode();
+            var rand = new Random();
+            if (rand.Next(100) > _probFallo)
+            {
+                _client.Send(ack, ack.Length, _ip);
+            }
+            else if (_test)
+            {
+                Console.WriteLine("Se ha perdido el ACK.");
+            }
         }
     }
 }
