@@ -13,7 +13,6 @@ namespace Servidor
         private const bool _test = true;
         static UdpClient client = new UdpClient(_port);
         static IPEndPoint ip = new IPEndPoint(IPAddress.Any, _port);
-        private static byte[] _ack;
 
         private static void Run()
         {
@@ -92,11 +91,11 @@ namespace Servidor
              * que exista la posibilidad de que falle.
              */
             ACK res = new ACK(seq);
-            _ack = res.Encode();
+            byte[] ack = res.Encode();
             var rand = new Random();
             if (rand.Next(100) > _probFallo)
             {
-                client.Send(_ack, _ack.Length, ip);
+                client.Send(ack, ack.Length, ip);
             }
             else if (_test)
             {
