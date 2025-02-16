@@ -54,12 +54,14 @@ namespace Servidor
 
                         else if (msg.Seq == seq)
                         {
-                            if (_test)
-                            {
-                                Console.WriteLine($"Seq: {seq} Num: {msg.Number}");
-                            }
-
+                            Console.WriteLine($"Seq: {seq} Num: {msg.Number}");
                             seq++;
+                        }
+
+                        else if(_test)
+                        {
+                            Console.WriteLine($"Mensaje recibido duplicado.\n" +
+                                $"Seq recibida: {msg.Seq} Seq esperada: {seq}");
                         }
 
 
