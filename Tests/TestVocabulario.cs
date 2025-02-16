@@ -157,12 +157,12 @@ namespace Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DirectoryNotFoundException))] // Espera un FileNotFoundException
+        [ExpectedException(typeof(DirectoryNotFoundException))] // Espera un DirectoryNotFoundException
         public void TestWriterPathInexistent()
         {
             /*
              * Comprobamos el correcto uso de la excepción en caso
-             * de no encontrar un archivo con el nombre.
+             * de no encontrar un directorio.
              */
             FileWriter numberWriter = new FileWriter();
             List<int> numbers = new List<int> { 1, 2, 3 };
