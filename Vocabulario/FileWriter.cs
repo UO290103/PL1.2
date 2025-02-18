@@ -1,21 +1,22 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace Vocabulario
 {
-    public class FileWriter : IArchive<int>
+    public class FileWriter : IArchive<sbyte>
     {
-        public void Writer(List<int> data, string path) 
+        public void Writer(List<sbyte> data, string path) 
         {
             // Especificamos las posibles excepciones
 
+            // Verificamos que la lista tenga información -> Caso contrario excepción.
             if (data == null)
             {
                 throw new ArgumentNullException(nameof(data), "El argumento 'elements' no puede ser nulo.");
             }
 
-            // Verificamos si el directorio existe.
+            // Verificamos si el directorio existe -> En caso contrario excepción.
             string directoryPath = Path.GetDirectoryName(path);
             if (!Directory.Exists(directoryPath))
             {
@@ -32,8 +33,8 @@ namespace Vocabulario
                  * Este bucle tiene como finalidad observar si existe el archivo en el path indicado
                  * en caso de su existencia, creará uno nuevo con el siguiente formato:
                  * NombreArchivo_x.extensión
-                 * Donde x -> Siguiente número empleado al último.
-                 *       extensión -> La extensión que haya enviado el usuario.
+                 *      Donde x -> Siguiente número empleado al último.
+                 *      extensión -> La extensión que haya enviado el usuario.
                  */
 
                 lastPath = Path.Combine(directoryPath, 
@@ -50,16 +51,16 @@ namespace Vocabulario
                 }
             }
 
-            // Mensaje informativo.
+            // Mensaje informativo de donde se ha guardado el archivo.
             Console.WriteLine($"Los datos se han guardado en {lastPath}");
         }
 
-        public IEnumerable<int> LineReader(string line)
+        public IEnumerable<sbyte> LineReader(string line)
         {
             throw new NotImplementedException();
         }
 
-        public int[] Reader(string archivePath)
+        public sbyte[] Reader(string archivePath)
         {
             throw new NotImplementedException();
         }
