@@ -113,16 +113,39 @@ namespace Tests
         [TestMethod]
         public void TestReadFileData()
         {
+            // Arrange: Definir ruta del archivo temporal
             FileReader numberReader = new FileReader();
+            string tempDir = Path.GetTempPath();
+            string fileName = "TestFileReader.txt";
+            string filePath = Path.Combine(tempDir, fileName);
 
-            string filePath = "TestFileReader.txt";
+            List<sbyte> expectedNumbers = new List<sbyte> { 0, 1, 2, 3, 4, 5, 6, -1, -2, -3, 5 };
 
-            var numbers = numberReader.Reader(filePath);
+            try
+            {
+                // Escribimos los números en el archivo
+                using (StreamWriter writer = new StreamWriter(filePath))
+                {
+                    foreach (var num in expectedNumbers)
+                    {
+                        writer.WriteLine(num);
+                    }
+                }
 
-            CollectionAssert.AreEqual(
-                new List<sbyte> { 0, 1, 2, 3, 4, 5, 6, -1, -2, -3, 5 },
-                numbers.ToList()
-                );
+                // Leemos los números con FileReader
+                var readNumbers = numberReader.Reader(filePath).ToList();
+
+                // Verificar que los datos leídos son correctos
+                CollectionAssert.AreEqual(expectedNumbers, readNumbers);
+            }
+            finally
+            {
+                // Eliminamos el archivo de prueba
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
         }
 
         [TestMethod]
@@ -148,125 +171,126 @@ namespace Tests
             var result = fileReader.LineReader(line);
 
             string expectedOut = $"Advertencia: El número '{(string)line}' está fuera del rango permitido (-128 a 127) y será ignorado.";
-            
+
         }
 
-    [TestClass]
-    public class NumberWriterTest
-    {
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))] // Espera una ArgumentNullException
-        public void TestWriterFilePathNull()
+        [TestClass]
+        public class NumberWriterTest
         {
-            // Creamos una instancia de NumberReader.
-            FileWriter numberWriter = new FileWriter();
-            List<sbyte> numbers = null;
 
-            // Intentamos pasar un path nulo y comprobamos que se lanza ArgumentNullException.
-            numberWriter.Writer(numbers, "Inexistent_file.txt");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(DirectoryNotFoundException))] // Espera un DirectoryNotFoundException
-        public void TestWriterPathInexistent()
-        {
-            /*
-             * Comprobamos el correcto uso de la excepción en caso
-             * de no encontrar un directorio.
-             */
-            FileWriter numberWriter = new FileWriter();
-            List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
-            string filePath = "C:\\Inexistent\\File.txt";
-
-            // Comprobamos la inexistencia del archivo con su excepción.
-            numberWriter.Writer(numbers, filePath);
-        }
-
-        [TestMethod]
-        public void TestWriterNewFile()
-        {
-            FileWriter numberWriter = new FileWriter();
-
-            string tempDir = Path.GetTempPath();
-            string fileName = "TestFileWriter.txt";
-            string filePath = Path.Combine(tempDir, fileName);
-
-            List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
-
-            try
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentNullException))] // Espera una ArgumentNullException
+            public void TestWriterFilePathNull()
             {
+                // Creamos una instancia de NumberReader.
+                FileWriter numberWriter = new FileWriter();
+                List<sbyte> numbers = null;
+
+                // Intentamos pasar un path nulo y comprobamos que se lanza ArgumentNullException.
+                numberWriter.Writer(numbers, "Inexistent_file.txt");
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(DirectoryNotFoundException))] // Espera un DirectoryNotFoundException
+            public void TestWriterPathInexistent()
+            {
+                /*
+                 * Comprobamos el correcto uso de la excepción en caso
+                 * de no encontrar un directorio.
+                 */
+                FileWriter numberWriter = new FileWriter();
+                List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
+                string filePath = "C:\\Inexistent\\File.txt";
+
+                // Comprobamos la inexistencia del archivo con su excepción.
                 numberWriter.Writer(numbers, filePath);
-
-                Assert.IsTrue(File.Exists(filePath), "El archivo no fue creado.");
-
             }
-            finally // Revertimos la acción anterior para eliminar el archivo creado.
+
+            [TestMethod]
+            public void TestWriterNewFile()
             {
-                if (File.Exists(filePath))
-                    File.Delete(filePath);
-            }
-        }
+                FileWriter numberWriter = new FileWriter();
 
-        [TestMethod]
-        public void TestWriterNewNameForFile()
-        {
-            FileWriter numberWriter = new FileWriter();
+                string tempDir = Path.GetTempPath();
+                string fileName = "TestFileWriter.txt";
+                string filePath = Path.Combine(tempDir, fileName);
 
-            string tempDir = Path.GetTempPath();
-            string fileName = "TestFileWriter.txt";
-            string filePath1 = Path.Combine(tempDir, fileName);
-            string filePath2 = Path.Combine(tempDir, "TestFileWriter_1.txt");
+                List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
 
-            List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
-
-            try
-            {
-                numberWriter.Writer(numbers, filePath1);
-                numberWriter.Writer(numbers, filePath1); //Creamos nuevamente
-
-                Assert.IsTrue(File.Exists(filePath1), "El archivo no ha sido creado.");
-                // Comprobamos que se ha creado uno nuevo.
-                Assert.IsTrue(File.Exists(filePath2), "No se ha creado el segundo archivo.");
-            }
-            finally
-            {
-                if (File.Exists(filePath1) && File.Exists(filePath2))
+                try
                 {
-                    File.Delete(filePath1);
-                    File.Delete(filePath2);
+                    numberWriter.Writer(numbers, filePath);
+
+                    Assert.IsTrue(File.Exists(filePath), "El archivo no fue creado.");
+
+                }
+                finally // Revertimos la acción anterior para eliminar el archivo creado.
+                {
+                    if (File.Exists(filePath))
+                        File.Delete(filePath);
                 }
             }
-        }
 
-        [TestMethod]
-        public void TestWriterData()
-        {
-            FileWriter numberWriter = new FileWriter();
-            FileReader numberReader = new FileReader();
-
-            string tempDir = Path.GetTempPath();
-            string fileName = "TestFileWriter.txt";
-            string filePath = Path.Combine(tempDir, fileName);
-
-            List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
-
-            try
+            [TestMethod]
+            public void TestWriterNewNameForFile()
             {
-                numberWriter.Writer(numbers, filePath);
-                var ints = numberReader.Reader(filePath);
+                FileWriter numberWriter = new FileWriter();
 
-                Assert.AreEqual(3, ints.Length);
+                string tempDir = Path.GetTempPath();
+                string fileName = "TestFileWriter.txt";
+                string filePath1 = Path.Combine(tempDir, fileName);
+                string filePath2 = Path.Combine(tempDir, "TestFileWriter_1.txt");
 
-                CollectionAssert.AreEqual( //Comprobamos que coincide la información del interior.
-                numbers,
-                ints.ToList()
-                );
+                List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
+
+                try
+                {
+                    numberWriter.Writer(numbers, filePath1);
+                    numberWriter.Writer(numbers, filePath1); //Creamos nuevamente
+
+                    Assert.IsTrue(File.Exists(filePath1), "El archivo no ha sido creado.");
+                    // Comprobamos que se ha creado uno nuevo.
+                    Assert.IsTrue(File.Exists(filePath2), "No se ha creado el segundo archivo.");
+                }
+                finally
+                {
+                    if (File.Exists(filePath1) && File.Exists(filePath2))
+                    {
+                        File.Delete(filePath1);
+                        File.Delete(filePath2);
+                    }
+                }
             }
-            finally
+
+            [TestMethod]
+            public void TestWriterData()
             {
-                if (File.Exists(filePath))
-                    File.Delete(filePath);
+                FileWriter numberWriter = new FileWriter();
+                FileReader numberReader = new FileReader();
+
+                string tempDir = Path.GetTempPath();
+                string fileName = "TestFileWriter.txt";
+                string filePath = Path.Combine(tempDir, fileName);
+
+                List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
+
+                try
+                {
+                    numberWriter.Writer(numbers, filePath);
+                    var ints = numberReader.Reader(filePath);
+
+                    Assert.AreEqual(3, ints.Length);
+
+                    CollectionAssert.AreEqual( //Comprobamos que coincide la información del interior.
+                    numbers,
+                    ints.ToList()
+                    );
+                }
+                finally
+                {
+                    if (File.Exists(filePath))
+                        File.Delete(filePath);
+                }
             }
         }
     }
