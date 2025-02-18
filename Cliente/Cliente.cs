@@ -41,14 +41,10 @@ namespace Cliente
                 _data = _cliente.Receive(ref _ip);
                 if (_test)
                 {
-                    Console.WriteLine("Se recibe ACK");
+                    Console.WriteLine($"Se recibe ACK con Seq: {_seq}");
                 }
                 // Creamos la ACK vacía y decodificamos lo recibido en ella
                 ack.Decode(_data);
-            }
-            if (_test)
-            {
-                Console.WriteLine("Seq: " + _seq);
             }
             _seq++;
         }
