@@ -142,9 +142,7 @@ namespace Tests
             {
                 // Eliminamos el archivo de prueba
                 if (File.Exists(filePath))
-                {
                     File.Delete(filePath);
-                }
             }
         }
 
@@ -163,15 +161,26 @@ namespace Tests
         }
 
         [TestMethod]
-        public void TestIsSByte()
+        public void TestIsNotSByte()
         {
             var fileReader = new FileReader();
             string line = "6060";
 
-            var result = fileReader.LineReader(line);
+            // Capturamos la salida de la consola para la comprobación.
+            using (StringWriter sw = new StringWriter())
+            {
+                Console.SetOut(sw);
 
-            string expectedOut = $"Advertencia: El número '{(string)line}' está fuera del rango permitido (-128 a 127) y será ignorado.";
+                // Leemos la línea y lo pasamos a lista.
+                var result = fileReader.LineReader(line).ToList();
 
+                // Comprobamos que la salida por consola es la esperada.
+                string expectedOut = $"Advertencia: El número '{line}' está fuera del rango permitido (-128 a 127) y será ignorado.{Environment.NewLine}";
+                Assert.AreEqual(expectedOut, sw.ToString());
+
+                // Comprobamos que la lista está vacia al no ser un byte.
+                CollectionAssert.AreEqual(new List<sbyte>(), result);
+            }
         }
 
         [TestClass]
