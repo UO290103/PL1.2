@@ -85,7 +85,6 @@ namespace Tests
     [TestClass]
     public class NumberReaderTest
     {
-        public object Dir { get; private set; }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))] // Espera una ArgumentNullException
@@ -122,7 +121,7 @@ namespace Tests
             var numbers = numberReader.Reader(filePath);
 
             CollectionAssert.AreEqual(
-                new List<int> { 0, 1, 2, 3, 4, 5, 6, -1, -2, -3, 5},
+                new List<sbyte> { 0, 1, 2, 3, 4, 5, 6, -1, -2, -3, 5 },
                 numbers.ToList()
                 );
         }
@@ -131,14 +130,26 @@ namespace Tests
         public void TestReadLineData()
         {
             var fileReader = new FileReader();
-            string line = "Esto123es4una567prueba89-1";
+            string line = "Esto123es4u127na-128prueba89-1";
 
-            
+
             var result = fileReader.LineReader(line);
 
             CollectionAssert.AreEqual(
-                new List<int> { 123, 4, 567, 89, -1},
-                result.Cast<int>().ToList());
+                new List<sbyte> { 123, 4, 127, -128, 89, -1 },
+                result.Cast<sbyte>().ToList());
+        }
+
+        [TestMethod]
+        public void TestIsSByte()
+        {
+            var fileReader = new FileReader();
+            string line = "6060";
+
+            var result = fileReader.LineReader(line);
+
+            string expectedOut = $"Advertencia: El número '{(string)line}' está fuera del rango permitido (-128 a 127) y será ignorado.";
+
         }
     }
 }
