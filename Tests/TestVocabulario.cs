@@ -14,7 +14,7 @@ namespace Tests
         [TestMethod]
         public void TestMessageEmptyConstructor()
         {
-            // Crear un mensaje sin argumentos, por lo que _seq y _num deberían ser 0
+            // Crear un mensaje sin argumentos, por lo que _seq y _num deberÃ­an ser 0
             Data msg = new Data();
             // Comprobar si _seq es 0
             Assert.AreEqual(0, msg.Seq);
@@ -23,7 +23,7 @@ namespace Tests
         [TestMethod]
         public void TestMessageConstructorWithData()
         {
-            // Crear un mensaje con secuencia 3 y número 4
+            // Crear un mensaje con secuencia 3 y nÃºmero 4
             Data msg = new Data(3, 4);
             // Comprobar si _seq es 3
             Assert.AreEqual(3, msg.Seq);
@@ -51,7 +51,7 @@ namespace Tests
         [TestMethod]
         public void TestAcknowledgmentEmptyConstructor()
         {
-            // Crear un Acknowledgment sin argumentos, por lo que la secuencia debería ser 0
+            // Crear un Acknowledgment sin argumentos, por lo que la secuencia deberÃ­a ser 0
             ACK ack = new ACK();
             // Comprobar si la secuencia es 0
             Assert.AreEqual(0, ack.SequenceNumber);
@@ -60,19 +60,19 @@ namespace Tests
         [TestMethod]
         public void TestAcknowledgmentConstructorWithData()
         {
-            // Crear un Acknowledgment con el número de secuencia 4
+            // Crear un Acknowledgment con el nÃºmero de secuencia 4
             ACK ack = new ACK(4);
-            // Comprobar si el número de secuencia es 4
+            // Comprobar si el nÃºmero de secuencia es 4
             Assert.AreEqual(4, ack.SequenceNumber);
         }
 
         [TestMethod]
         public void TestAcknowledgmentCodec()
         {
-            // Crear ack1 con número de secuencia 5 para codificar, y ack2 para decodificar
+            // Crear ack1 con nÃºmero de secuencia 5 para codificar, y ack2 para decodificar
             ACK ack1 = new ACK(5);
             ACK ack2 = new ACK();
-            // Codificar el número de secuencia de ack1 en un array de bytes
+            // Codificar el nÃºmero de secuencia de ack1 en un array de bytes
             byte[] testBytes = ack1.Encode();
             // Decodificar el array de bytes en ack2
             ack2.Decode(testBytes);
@@ -101,12 +101,12 @@ namespace Tests
         public void TestReadNoDataFilePath()
         {
             /*
-             * Comprobamos el correcto uso de la excepción en caso
+             * Comprobamos el correcto uso de la excepciÃ³n en caso
              * de no encontrar un archivo con el nombre.
              */
             FileReader numberReader = new FileReader();
 
-            // Comprobamos la inexistencia del archivo con su excepción.
+            // Comprobamos la inexistencia del archivo con su excepciÃ³n.
             numberReader.Reader("InexistentFile.txt");
         }
 
@@ -120,7 +120,7 @@ namespace Tests
             var numbers = numberReader.Reader(filePath);
 
             CollectionAssert.AreEqual(
-                new List<int> { 0, 1, 2, 3, 4, 5, 6, -1, -2, -3, 5 },
+                new List<sbyte> { 0, 1, 2, 3, 4, 5, 6, -1, -2, -3, 5 },
                 numbers.ToList()
                 );
         }
@@ -129,16 +129,27 @@ namespace Tests
         public void TestReadLineData()
         {
             var fileReader = new FileReader();
-            string line = "Esto123es4una567prueba89-1";
+            string line = "Esto123es4u127na-128prueba89-1";
 
 
             var result = fileReader.LineReader(line);
 
             CollectionAssert.AreEqual(
-                new List<int> { 123, 4, 567, 89, -1 },
-                result.Cast<int>().ToList());
+                new List<sbyte> { 123, 4, 127, -128, 89, -1 },
+                result.Cast<sbyte>().ToList());
         }
-    }
+
+        [TestMethod]
+        public void TestIsSByte()
+        {
+            var fileReader = new FileReader();
+            string line = "6060";
+
+            var result = fileReader.LineReader(line);
+
+            string expectedOut = $"Advertencia: El nÃºmero '{(string)line}' estÃ¡ fuera del rango permitido (-128 a 127) y serÃ¡ ignorado.";
+            
+        }
 
     [TestClass]
     public class NumberWriterTest
@@ -150,7 +161,7 @@ namespace Tests
         {
             // Creamos una instancia de NumberReader.
             FileWriter numberWriter = new FileWriter();
-            List<int> numbers = null;
+            List<sbyte> numbers = null;
 
             // Intentamos pasar un path nulo y comprobamos que se lanza ArgumentNullException.
             numberWriter.Writer(numbers, "Inexistent_file.txt");
@@ -161,14 +172,14 @@ namespace Tests
         public void TestWriterPathInexistent()
         {
             /*
-             * Comprobamos el correcto uso de la excepción en caso
+             * Comprobamos el correcto uso de la excepciÃ³n en caso
              * de no encontrar un directorio.
              */
             FileWriter numberWriter = new FileWriter();
-            List<int> numbers = new List<int> { 1, 2, 3 };
+            List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
             string filePath = "C:\\Inexistent\\File.txt";
 
-            // Comprobamos la inexistencia del archivo con su excepción.
+            // Comprobamos la inexistencia del archivo con su excepciÃ³n.
             numberWriter.Writer(numbers, filePath);
         }
 
@@ -181,7 +192,7 @@ namespace Tests
             string fileName = "TestFileWriter.txt";
             string filePath = Path.Combine(tempDir, fileName);
 
-            List<int> numbers = new List<int> { 1, 2, 3 };
+            List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
 
             try
             {
@@ -190,7 +201,7 @@ namespace Tests
                 Assert.IsTrue(File.Exists(filePath), "El archivo no fue creado.");
 
             }
-            finally // Revertimos la acción anterior para eliminar el archivo creado.
+            finally // Revertimos la acciÃ³n anterior para eliminar el archivo creado.
             {
                 if (File.Exists(filePath))
                     File.Delete(filePath);
@@ -207,7 +218,7 @@ namespace Tests
             string filePath1 = Path.Combine(tempDir, fileName);
             string filePath2 = Path.Combine(tempDir, "TestFileWriter_1.txt");
 
-            List<int> numbers = new List<int> { 1, 2, 3 };
+            List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
 
             try
             {
@@ -238,7 +249,7 @@ namespace Tests
             string fileName = "TestFileWriter.txt";
             string filePath = Path.Combine(tempDir, fileName);
 
-            List<int> numbers = new List<int> { 1, 2, 3 };
+            List<sbyte> numbers = new List<sbyte> { 1, 2, 3 };
 
             try
             {
@@ -247,7 +258,7 @@ namespace Tests
 
                 Assert.AreEqual(3, ints.Length);
 
-                CollectionAssert.AreEqual( //Comprobamos que coincide la información del interior.
+                CollectionAssert.AreEqual( //Comprobamos que coincide la informaciÃ³n del interior.
                 numbers,
                 ints.ToList()
                 );
