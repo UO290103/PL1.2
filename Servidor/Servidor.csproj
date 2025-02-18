@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Vocabulario\Vocabulario.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="Vocabulario">
       <HintPath>..\Vocabulario\bin\Debug\netcoreapp2.1\Vocabulario.dll</HintPath>
     </Reference>
