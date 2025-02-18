@@ -1,0 +1,69 @@
+@startuml
+skinparam sequenceMessageAlign center
+
+participant "Emisor" as E
+participant "Receptor" as R
+
+== Inicialización ==
+
+' Mensaje 1 inicial (se retrasa ACK)
+[o-> E: Create temp
+activate E
+E -> R: msg [seq = 1]
+activate R
+R -> R: Procesar msg 1
+?<-- R: ack [seq = 1]
+note right: **ack con retraso**
+deactivate R
+[x-> E: noAck [seq = 1]
+deactivate E
+
+' Mensaje 1 reintento (funciona normal)
+[o-> E: Create temp
+activate E
+E -> R: msg [seq = 1] (reintento)
+activate R
+R -> R: Procesar msg 1
+R -> E: ack [seq = 1]
+deactivate R
+[x-> E: Destroy temp
+deactivate E
+
+' Mensaje 2 (funciona normal y llega ack1 inicial)
+[o-> E: Create temp
+activate E
+E -> R: msg [seq = 2]
+activate R
+E <--?: ack [seq = 1]
+note left: **ack retrasado**
+E <-- E: Destroy ack [seq = 1] and R -> R: Procesar msg 2
+R -> E: ack [seq = 2]
+deactivate R
+[x-> E: Destroy temp
+deactivate E
+
+' Mensaje 3 (funciona normal)
+[o-> E: Create temp
+activate E
+E -> R: msg [seq = 3]
+activate R
+R -> R: Procesar msg 3
+R -> E: ack [seq = 3]
+deactivate R
+[x-> E: Destroy temp
+deactivate E
+
+' Mensaje 4 (funciona normal)
+[o-> E: Create temp
+activate E
+E -> R: msg [seq = 4]
+activate R
+R -> R: Procesar msg 4
+R -> E: ack [seq = 4]
+deactivate R
+[x-> E: Destroy temp
+deactivate E
+
+== Finalización ==
+
+@enduml

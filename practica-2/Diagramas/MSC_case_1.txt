@@ -1,0 +1,50 @@
+@startuml
+skinparam sequenceMessageAlign center
+== Inicialización ==
+' Mensaje 1
+[o-> emisor: Create temp
+activate emisor
+emisor -> receptor: msg [seq = 1]
+receptor -> receptor: Procesar msg
+activate receptor
+receptor -> emisor: Ack [seq = 1]
+deactivate receptor
+[x<- emisor: Close temp
+deactivate emisor 
+
+'Mensaje 2
+[o-> emisor: Create temp
+activate emisor
+emisor -> receptor: msg [seq = 2]
+receptor -> receptor: Procesar msg
+activate receptor
+receptor -> emisor: Ack [seq = 2]
+deactivate receptor
+[x<- emisor: Close temp
+deactivate emisor 
+
+'Mensaje 3
+[o-> emisor: Create temp
+activate emisor
+emisor -> receptor: msg [seq = 3]
+receptor -> receptor: Procesar msg
+activate receptor
+receptor -> emisor: Ack [seq = 3]
+deactivate receptor
+[x<- emisor: Close temp
+deactivate emisor 
+
+'Mensaje 4
+[o-> emisor: Create temp
+activate emisor
+emisor -> receptor: msg [seq = 4]
+receptor -> receptor: Procesar msg
+activate receptor
+receptor -> emisor: Ack [seq = 4]
+deactivate receptor
+[x<- emisor: Close temp
+deactivate emisor 
+
+== Finalización ==
+
+@enduml
