@@ -7,7 +7,7 @@ namespace Vocabulario
     {
         // Atributos de la clase
         private int _seq;
-        private int _num;
+        private sbyte _num;
 
         // Propiedades para acceder a los atributos
         public int Seq
@@ -15,14 +15,14 @@ namespace Vocabulario
             get { return _seq; }
             set { _seq = value; }
         }
-        public int Number
+        public sbyte Number
         {
             get { return _num; }
             set { _num = value; }
         }
 
         // Constructor de la clase
-        public Data(int seq = 0, int num = 0)
+        public Data(int seq = 0, sbyte num = 0)
         {
             _seq = seq;
             _num = num;
@@ -36,7 +36,7 @@ namespace Vocabulario
             BinaryReader reader = new BinaryReader(ms);
             // Leer el número de secuencia y el número transmitido
             _seq = reader.ReadInt32();
-            _num = reader.ReadInt32();
+            _num = reader.ReadSByte();
         }
 
         // Método que codifica el número de secuencia y el número transferido en un array de bytes
