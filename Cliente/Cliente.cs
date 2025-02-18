@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using Vocabulario;
@@ -11,16 +9,16 @@ namespace Cliente
     {
         private UdpClient _cliente = new UdpClient();  // Cliente UDP
         private IPEndPoint _ip = new IPEndPoint(IPAddress.Loopback, 50000);
-        private string _path = "C:\\Secuencias\\Secuencia.txt"; //Path al fichero del que se obtienen los números a transmitir
+        private string _path = "C:\\Secuencias\\Secuencia2.txt"; //Path al fichero del que se obtienen los números a transmitir
         private bool _conexion = true;  // Booleano que indica cuando la conexión está activa o no
         private const int _probFallo = 0;  // Porcentaje de fallo en el envío de mensajes (Entre 0 y 100)
         private int _seq = 0;  // Número de secuencia del mensaje
-        private int[] _numbers;  // Array de enteros donde se guardan los números a transmitit
+        private sbyte[] _numbers;  // Array de sbyte donde se guardan los números a transmitir.
         private byte[] _data;  // Array de bytes donde se codifica y decodifica la información
         private FileReader _numReader = new FileReader();
-        private bool _test = true;
+        private bool _test = true; // Variable que activa comentarios.
 
-        public void Send(int seq, int num)
+        public void Send(int seq, sbyte num)
         {
             // Creamos el mensaje con seq correspondiente y número correspondiente
             Data msg = new Data(seq, num);
@@ -29,8 +27,9 @@ namespace Cliente
             _cliente.Send(_data, _data.Length, _ip);
             if (_test)
             {
-                Console.WriteLine("Se ha enviado el número");
+                Console.WriteLine($"Seq: {seq} Num: {num}");
             }
+
         }
 
         public void Receive()
@@ -40,16 +39,13 @@ namespace Cliente
             {
                 // Esperamos a recibir la ACK que envía el servidor
                 _data = _cliente.Receive(ref _ip);
-                
                 if (_test)
                 {
-                    Console.WriteLine("Se recibe ACK");
+                    Console.WriteLine($"Se recibe ACK con Seq: {_seq}");
                 }
-
                 // Creamos la ACK vacía y decodificamos lo recibido en ella
                 ack.Decode(_data);
             }
-            //Console.WriteLine("Seq: " + _seq);
             _seq++;
         }
 
@@ -82,11 +78,11 @@ namespace Cliente
                                 //Se envía el mensaje con seq y num correspondiente
                                 Send(_seq, _numbers[_seq - 1]);
                             }
-                            else if (_test)
+                            else
                             {
-
                                 Console.WriteLine("Se ha fallado en el envío");
                             }
+
                         }
                         Receive();
                     }
@@ -122,7 +118,7 @@ namespace Cliente
             _cliente.Close();
         }
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             Cliente _c = new Cliente();
             _c.Run();
