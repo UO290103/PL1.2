@@ -20,7 +20,7 @@ namespace Cliente
         private bool _test = true;
         private FileReader numReader = new FileReader(); // Invocamos el método para leer los números
         
-        public void Send(int seq, int num)
+        public void Send(int seq, sbyte num)
         {
             // Creamos el mensaje con seq correspondiente y número correspondiente
             Data msg = new Data(seq, num);
