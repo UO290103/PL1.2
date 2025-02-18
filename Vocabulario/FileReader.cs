@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace Vocabulario
 {
-    public class FileReader : IArchive<int>
+    public class FileReader : IArchive<sbyte>
     {
-        public int[] Reader(string path)
+        public sbyte[] Reader(string path)
         {
             // Especificamos las posibles excepciones.
 
@@ -20,11 +20,10 @@ namespace Vocabulario
                 throw new FileNotFoundException("El archivo no existe.", path);
             }
 
-            var numbers = new List<int>();
-
+            var numbers = new List<sbyte>();
 
             // Vamos a leer línea por línea el archivo.
-            // El using se asegura que el archivo se cierre.
+            // El using se asegura de que el archivo se cierre automáticamente.
             using (var file = new StreamReader(path))
             {
                 string line;
@@ -39,14 +38,12 @@ namespace Vocabulario
                 }
             }
 
-            // Devolvemos la lista de numeros.
+            // Devolvemos la lista de números convertida en un array.
             return numbers.ToArray();
         }
 
-
-        // Definimos el método de lectura de la línea
-
-        public IEnumerable<int> LineReader(string line)
+        // Definimos el método de lectura de la línea.
+        public IEnumerable<sbyte> LineReader(string line)
         {
             string temp = ""; // Cadena temporal para acumular dígitos.
 
@@ -55,40 +52,46 @@ namespace Vocabulario
                 // Comprobamos si el caracter actual es un '-' y el siguiente un número.
                 if (line[i] == '-' && i + 1 < line.Length && Char.IsNumber(line[i + 1]))
                 {
-                    if (temp.Length > 0 && int.TryParse(temp, out int result))
+                    if (temp.Length > 0 && sbyte.TryParse(temp, out sbyte result))
                     {
                         yield return result;
-                        temp = "";
                     }
-                    temp += "-"; // Agregamos el símbolo negativo.
+                    temp = "-"; // Agregamos el símbolo negativo.
                 }
-
-                // Comprobamos si el caracter actual es un nº.
                 else if (Char.IsNumber(line[i]))
                 {
                     temp += line[i]; // Agregamos número.
                 }
-
-                // Si encontramos un caracter no numérico y temp no está vacío, devolvemos el número.
-                else if (temp.Length > 0)
+                else if (temp.Length > 0) // Si encontramos un caracter no numérico y temp no está vacío, devolvemos el número.
                 {
-                    if (int.TryParse(temp, out int result))
+                    if (sbyte.TryParse(temp, out sbyte result))
                     {
                         yield return result;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Advertencia: El número '{temp}' está fuera del rango permitido (-128 a 127) y será ignorado.");
                     }
                     temp = ""; // Reseteamos variable temp.
                 }
             }
 
-            // Si queda algún número acumulado en temp, lo devolvemos.
-            if (temp.Length > 0 && int.TryParse(temp, out int lastResult))
+            // Si queda algún número acumulado en temp, lo procesamos.
+            if (temp.Length > 0)
             {
-                yield return lastResult;
+                if (sbyte.TryParse(temp, out sbyte lastResult))
+                {
+                    yield return lastResult;
+                }
+                else
+                {
+                    Console.WriteLine($"Advertencia: El número '{temp}' está fuera del rango permitido (-128 a 127) y será ignorado.");
+                }
             }
         }
 
         // Indicamos una excepción ya que no implementa Writer
-        public void Writer(List<int> element, string archivePath)
+        public void Writer(List<sbyte> element, string archivePath)
         {
             throw new NotImplementedException();
         }
