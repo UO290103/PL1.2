@@ -4,7 +4,7 @@ skinparam sequenceMessageAlign center
 participant "Emisor" as E
 participant "Receptor" as R
 
-== Inicialización ==
+== InicializaciÃ³n ==
 
 ' Mensaje 1 inicial (funciona normal)
 [o-> E: Create temp
@@ -25,7 +25,7 @@ activate R
 R -> R: Procesa msg
 R -> E: ack [seq = 2]
 deactivate R
-x]-> E: Destroy temp
+[x-> E: Destroy temp
 deactivate E
 
 ' Mensaje 3 inicial (falla respuesta)
@@ -53,14 +53,13 @@ deactivate E
 ' Mensaje 4 (funciona normal)
 [o-> E: Create temp
 activate E
-E -> R: msg [seq = 4]
+E -> R: msg [seq = 2]
 activate R
 R -> R: Procesa msg
-R -> E: ack [seq = 4]
+R -> E: ack [seq = 2]
 deactivate R
 [x-> E: Destroy temp
 deactivate E
 
-== Finalización ==
-
+== FinalizaciÃ³n ==
 @enduml
