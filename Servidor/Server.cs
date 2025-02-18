@@ -53,7 +53,7 @@ namespace Server
                          * Mostrar el mensaje duplicado y la secuencia esperada.
                          */
 
-                        Console.WriteLine("Mensaje duplicado: {0} Secuencia Recibida: {1} Secuencia Esprada: {2}",
+                        Console.WriteLine("Mensaje duplicado: {0} Secuencia Recibida: {1} Secuencia Esperada: {2}",
                             msg.Number, msg.Seq, seq);
                     }
 
