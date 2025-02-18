@@ -147,7 +147,8 @@ namespace Tests
 
             var result = fileReader.LineReader(line);
 
-            string expectedOut = $"Advertencia: El número '{(string)line}' está fuera del rango permitido (-128 a 127) y será ignorado."
+            string expectedOut = $"Advertencia: El número '{(string)line}' está fuera del rango permitido (-128 a 127) y será ignorado.";
+            
         }
 
     [TestClass]
