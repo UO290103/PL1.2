@@ -1,10 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
-using Vocabulario;
-using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Collections;
+using System;
+using Vocabulario;
 
 namespace Tests
 {
@@ -114,16 +113,37 @@ namespace Tests
         [TestMethod]
         public void TestReadFileData()
         {
+            // Arrange: Definir ruta del archivo temporal
             FileReader numberReader = new FileReader();
+            string tempDir = Path.GetTempPath();
+            string fileName = "TestFileReader.txt";
+            string filePath = Path.Combine(tempDir, fileName);
 
-            string filePath = "TestFileReader.txt";
+            List<sbyte> expectedNumbers = new List<sbyte> { 0, 1, 2, 3, 4, 5, 6, -1, -2, -3, 5 };
 
-            var numbers = numberReader.Reader(filePath);
+            try
+            {
+                // Escribimos los números en el archivo
+                using (StreamWriter writer = new StreamWriter(filePath))
+                {
+                    foreach (var num in expectedNumbers)
+                    {
+                        writer.WriteLine(num);
+                    }
+                }
 
-            CollectionAssert.AreEqual(
-                new List<sbyte> { 0, 1, 2, 3, 4, 5, 6, -1, -2, -3, 5 },
-                numbers.ToList()
-                );
+                // Leemos los números con FileReader
+                var readNumbers = numberReader.Reader(filePath).ToList();
+
+                // Verificar que los datos leídos son correctos
+                CollectionAssert.AreEqual(expectedNumbers, readNumbers);
+            }
+            finally
+            {
+                // Eliminamos el archivo de prueba
+                if (File.Exists(filePath))
+                    File.Delete(filePath);
+            }
         }
 
         [TestMethod]
@@ -141,15 +161,27 @@ namespace Tests
         }
 
         [TestMethod]
-        public void TestIsSByte()
+        public void TestIsNotSByte()
         {
             var fileReader = new FileReader();
             string line = "6060";
 
-            var result = fileReader.LineReader(line);
+            // Capturamos la salida de la consola para la comprobación.
+            using (StringWriter sw = new StringWriter())
+            {
+                Console.SetOut(sw);
 
-            string expectedOut = $"Advertencia: El número '{(string)line}' está fuera del rango permitido (-128 a 127) y será ignorado.";
+                // Leemos la línea y lo pasamos a lista.
+                var result = fileReader.LineReader(line).ToList();
 
+                // Comprobamos que la salida por consola es la esperada.
+                string expectedOut = $"Advertencia: El número '{line}' " +
+                    $"está fuera del rango permitido (-128 a 127) y será ignorado.{Environment.NewLine}";
+                Assert.AreEqual(expectedOut, sw.ToString());
+
+                // Comprobamos que la lista está vacia al no ser un byte.
+                CollectionAssert.AreEqual(new List<sbyte>(), result);
+            }
         }
     }
 }
