@@ -15,9 +15,9 @@ namespace Cliente
         private bool _conexion = true;  // Booleano que indica cuando la conexión está activa o no
         private const int _probFallo = 20;  // Porcentaje de fallo en el envío de mensajes (Entre 0 y 100)
         private int _seq = 0;  // Número de secuencia del mensaje
-        private int[] _numeros;  // Array de enteros donde se guardan los números a transmitit
+        private sbyte[] _numeros;  // Array de enteros donde se guardan los números a transmitit
         private byte[] _data;  // Array de bytes donde se codifica y decodifica la información
-        private bool _test;
+        private bool _test = true;
         private FileReader numReader = new FileReader(); // Invocamos el método para leer los números
         
         public void Send(int seq, int num)
@@ -99,7 +99,7 @@ namespace Cliente
             _cliente.Close();
         }
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             Cliente _c = new Cliente();
             _c.Run();
