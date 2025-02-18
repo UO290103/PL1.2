@@ -40,8 +40,8 @@ namespace Server
                         }
 
                         // Comandos para comprobar el correcto funcionamiento
-                        Console.WriteLine("Secuencia recibida: {0} Mensaje recibido: {1}",
-                        msg.Seq, msg.Number);
+                        Console.WriteLine($"Secuencia recibida: {msg.Seq} " +
+                            $"Mensaje recibido: {msg.Number}");
                         seq++;
 
                         // Si la secuencia es correcta -> Incrementar la secuencia
@@ -53,8 +53,8 @@ namespace Server
                          * Mostrar el mensaje duplicado y la secuencia esperada.
                          */
 
-                        Console.WriteLine("Mensaje duplicado: {0} Secuencia Recibida: {1} Secuencia Esperada: {2}",
-                            msg.Number, msg.Seq, seq);
+                        Console.WriteLine($"Mensaje duplicado: {msg.Number} " +
+                            $"Secuencia Recibida: {msg.Seq} Secuencia Esperada: {seq}");
                     }
 
                     // Crear un mensaje de respuesta para el cliente con la secuencia

@@ -58,13 +58,17 @@ namespace Cliente
                             {
                                 //Se envía el mensaje con seq y num correspondiente
                                 Send(_seq, _numeros[_seq-1]);
+                                if (_test)
+                                {
+                                    Console.WriteLine($"Seq Env: {_seq} Num Env: {_numeros[_seq - 1]}");
+                                }
                             }
-                            /*
-                            else
+                            
+                            else if(_test)
                             {
                                 Console.WriteLine("Se ha fallado en el envío");
                             }
-                            */
+                            
                         }
 
                         ACK ack = new ACK(-1);
@@ -72,11 +76,10 @@ namespace Cliente
                         {
                             // Esperamos a recibir la ACK que envía el servidor
                             _data = _cliente.Receive(ref _ip);
-                            Console.WriteLine("Se recibe ACK");
+                            Console.WriteLine($"Se recibe ACK con Seq: {_seq}");
                             // Creamos la ACK vacía y decodificamos lo recibido en ella
                             ack.Decode(_data);
                         }
-                        Console.WriteLine("Seq: " + _seq);
                         _seq++;
                     }
                     _conexion = false;
