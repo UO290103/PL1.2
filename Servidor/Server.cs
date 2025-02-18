@@ -24,7 +24,7 @@ namespace Servidor
                 {
                     Console.WriteLine("Esperando conexión del cliente...");
 
-                    List<int> ints = new List<int>();  // Nueva lista para cada cliente
+                    List<sbyte> ints = new List<sbyte>();  // Nueva lista para cada cliente
                     bool isConnected = false;
                     int seq = 0;
 
